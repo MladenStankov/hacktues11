@@ -69,6 +69,5 @@ export default async function Header() {
         </div>
       </div>
     </div>
-    </div>
   );
 }
