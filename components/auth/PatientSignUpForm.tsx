@@ -28,7 +28,7 @@ import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { signUp } from "@/lib/auth-client";
-import { setIdNumber } from "@/app/actions/user";
+import { createPatientMetadata } from "@/app/actions/user";
 
 export default function PatientSignUpForm() {
   const [step, setStep] = useState(1);
@@ -93,11 +93,23 @@ export default function PatientSignUpForm() {
         callbackURL: "/dashboard",
       });
 
-    if (response.error) {
-      toast.error(response.error.message);
-    } else {
-      setIdNumber(response.data.user.id, data.idNumber);
-      setIsSubmitted(true);
+      if (response.error) {
+        toast.error(response.error.message);
+      } else {
+        await createPatientMetadata(response.data.user.id, {
+          dateOfBirth: data.dateOfBirth,
+          gender: data.gender,
+          heightCm: data.heightCm,
+          weightKg: data.weightKg,
+          bloodType: data.bloodType,
+          uniqueCitizenshipNumber: data.uniqueCitizenshipNumber,
+          phoneNumber: data.phoneNumber,
+        });
+        setIsSubmitted(true);
+      }
+    } catch (error) {
+      toast.error("Failed to create account");
+      console.error(error);
     }
     setIsLoading(false);
   };
