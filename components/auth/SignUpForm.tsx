@@ -28,6 +28,7 @@ import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { signUp } from "@/lib/auth-client";
+import { setIdNumber } from "@/app/actions/user";
 
 export default function SignUpForm() {
   const [step, setStep] = useState(1);
@@ -79,6 +80,7 @@ export default function SignUpForm() {
     if (response.error) {
       toast.error(response.error.message);
     } else {
+      setIdNumber(response.data.user.id, data.idNumber);
       setIsSubmitted(true);
     }
     setIsLoading(false);
@@ -146,8 +148,8 @@ export default function SignUpForm() {
                       stepNumber === step
                         ? "bg-primary text-primary-foreground"
                         : stepNumber < step
-                        ? "bg-primary/20 text-primary"
-                        : "bg-muted text-muted-foreground"
+                          ? "bg-primary/20 text-primary"
+                          : "bg-muted text-muted-foreground"
                     }`}
                   >
                     {stepNumber < step ? (
@@ -160,10 +162,10 @@ export default function SignUpForm() {
                     {stepNumber === 1
                       ? "Names"
                       : stepNumber === 2
-                      ? "Identity"
-                      : stepNumber === 3
-                      ? "Security"
-                      : "Review"}
+                        ? "Identity"
+                        : stepNumber === 3
+                          ? "Security"
+                          : "Review"}
                   </div>
                 </div>
               ))}

@@ -7,7 +7,7 @@ export default function AppLayout({
   return (
     <>
       <Header />
-      <main className="min-h-svh">{children}</main>
+      <main className="min-h-svh w-full">{children}</main>
       <Footer />
     </>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,8 +26,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { signIn } from "@/lib/auth-client";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(signInFormSchema),
     defaultValues: {
@@ -35,9 +41,20 @@ export default function LoginPage() {
     },
   });
 
-  const handleSubmit = (values: SignInFormValues) => {
-    // Here you would typically handle authentication
-    console.log("Login attempt with:", values);
+  const handleSubmit = async (values: SignInFormValues) => {
+    setIsLoading(true);
+    const response = await signIn.email({
+      email: values.email,
+      password: values.password,
+      callbackURL: "/",
+    });
+
+    if (response.error) {
+      toast.error(response.error.message);
+    } else {
+      router.push("/");
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -104,8 +121,8 @@ export default function LoginPage() {
                 )}
               />
 
-              <Button type="submit" className="w-full">
-                Sign in
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? <Loader2 className="animate-spin" /> : "Sign in"}
               </Button>
             </form>
           </Form>
