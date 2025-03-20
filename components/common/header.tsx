@@ -31,7 +31,7 @@ export default function Header() {
           </Button>
         </Link>
         <Link href="/sign-up">
-          <Button size="sm">Get Started</Button>
+          <Button size="sm">Sign up</Button>
         </Link>
       </div>
     </div>

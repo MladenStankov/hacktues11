@@ -1,4 +1,5 @@
 import Link from "next/link"
+import Image from 'next/image'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Heart, Shield, Clock, Users, Star, ArrowRight, Phone, Mail, MapPin } from "lucide-react"
@@ -22,9 +23,11 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
+              <Link href="/sign-up">
                 <Button size="lg" className="px-8">
                   Get Started
                 </Button>
+              </Link>
                 <Button size="lg" variant="outline">
                   Learn More
                 </Button>
@@ -41,8 +44,8 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="flex justify-center lg:justify-end">
-              <img
-                src="/placeholder.svg?height=550&width=550"
+              <Image
+                src="/pexels-cottonbro-7578803.jpg?height=550&width=550"
                 alt="CareLink Platform"
                 className="rounded-lg object-cover shadow-xl"
                 width={550}
@@ -172,8 +175,8 @@ export default function LandingPage() {
         <div className="container px-4 md:px-6">
           <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
             <div className="flex justify-center lg:justify-start">
-              <img
-                src="/placeholder.svg?height=500&width=500"
+              <Image
+                src="/pexels-pixabay-40568.jpg?height=500&width=500"
                 alt="CareLink Team"
                 className="rounded-lg object-cover shadow-xl"
                 width={500}
