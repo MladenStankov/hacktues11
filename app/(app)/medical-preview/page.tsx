@@ -1,6 +1,4 @@
 "use client"
-
-import { useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -10,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Calendar, Clock, FileText, Mail, MapPin, Phone, User, ClipboardList } from "lucide-react"
 
 export default function PatientInfoDashboard() {
-  const [activeTab, setActiveTab] = useState("appointments")
+  // State removed as it's not being used
 
   return (
     <div className="container mx-auto py-6">
@@ -117,7 +115,7 @@ export default function PatientInfoDashboard() {
             <p className="text-sm text-muted-foreground">Medical record #MR-12345 • Last updated: March 20, 2025</p>
           </div>
 
-          <Tabs defaultValue="appointments" onValueChange={setActiveTab} className="w-full">
+          <Tabs defaultValue="appointments" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="appointments">
                 <Calendar className="mr-2 h-4 w-4" />
