@@ -12,6 +12,13 @@ import { Skeleton } from "../ui/skeleton";
 import { PopoverClose } from "@radix-ui/react-popover";
 import SignoutButton from "./SignoutButton";
 import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 export default function AuthButtons({ session }: { session: Session | null }) {
   if (!session)
@@ -26,11 +33,26 @@ export default function AuthButtons({ session }: { session: Session | null }) {
             Sign In
           </Button>
         </Link>
-        <Link href="/sign-up">
-          <Button size="sm" className="font-semibold">
-            Sign Up
-          </Button>
-        </Link>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button>Sign Up</Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="space-y-1 w-fit flex flex-col p-2">
+            <DropdownMenuItem className="p-0">
+              <Link href="/sign-up/patient">
+                <Button variant="ghost" className="">
+                  Sign Up as Patient
+                </Button>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="p-0">
+              <Link href="/sign-up/doctor">
+                <Button variant="ghost">Sign Up as Doctor</Button>
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     );
 
