@@ -39,7 +39,7 @@ export default function PatientInfoAppointments() {
                 <div className="text-muted-foreground">Blood Type</div>
                 <div>O+</div>
                 <div className="text-muted-foreground">Height</div>
-                <div>5'10" (178 cm)</div>
+                <div>5&apos;10&quot; (178 cm)</div>
                 <div className="text-muted-foreground">Weight</div>
                 <div>180 lbs (81.6 kg)</div>
                 <div className="text-muted-foreground">BMI</div>
