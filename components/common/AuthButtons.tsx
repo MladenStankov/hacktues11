@@ -12,13 +12,6 @@ import { Skeleton } from "../ui/skeleton";
 import { PopoverClose } from "@radix-ui/react-popover";
 import SignoutButton from "./SignoutButton";
 import Link from "next/link";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 
 export default function AuthButtons({ session }: { session: Session | null }) {
   if (!session)
