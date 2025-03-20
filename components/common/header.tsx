@@ -17,27 +17,6 @@ export default async function Header() {
           <Link href="/">
             <span className="text-xl font-bold">CareLink</span>
           </Link>
-        </div>
-        <nav className="hidden md:flex gap-6">
-          <Link
-            href="/#features"
-            className="text-sm font-medium hover:text-primary"
-          >
-            Features
-          </Link>
-          <Link 
-            href="/#about" 
-            className="text-sm font-medium hover:text-primary">
-            About Us
-          </Link>
-          <Link
-            href="/#contact"
-            className="text-sm font-medium hover:text-primary"
-          >
-            Contact
-          </Link>
-        </nav>
-        <AuthButtons session={session} />
       </div>
       {session ? (
         <nav className="hidden md:flex gap-6">
@@ -71,9 +50,9 @@ export default async function Header() {
             </Link>
           </nav>
         )
-
       }
       <AuthButtons session={session} />
+    </div>
     </div>
   );
 }
