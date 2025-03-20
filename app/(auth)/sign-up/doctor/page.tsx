@@ -1,5 +1,5 @@
-import React from "react";
+import DoctorSignUpForm from "@/components/auth/DoctorSignUpForm";
 
 export default function DoctorSignUp() {
-  return <div>DoctorSignUp</div>;
+  return <DoctorSignUpForm />;
 }

@@ -1,6 +1,6 @@
 "use server";
 import prisma from "@/lib/prisma";
-import { Gender, BloodType } from "@prisma/client";
+import { Gender, BloodType, DoctorSpecialization } from "@prisma/client";
 
 export async function createPatientMetadata(
   userId: string,
@@ -35,5 +35,36 @@ export async function createPatientMetadata(
   } catch (error) {
     console.error("Failed to create patient metadata:", error);
     throw new Error("Failed to create patient metadata");
+  }
+}
+
+export async function createDoctorMetadata(
+  userId: string,
+  data: {
+    specialization: string;
+    licenseNumber: string;
+    hospital: string | null | undefined;
+    uniqueCitizenshipNumber: string;
+  }
+) {
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        uniqueCitizenshipNumber: data.uniqueCitizenshipNumber,
+      },
+    });
+
+    await prisma.doctor.create({
+      data: {
+        userId,
+        specialization: data.specialization as DoctorSpecialization,
+        licenseNumber: data.licenseNumber,
+        hospital: data.hospital,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to create doctor metadata:", error);
+    throw new Error("Failed to create doctor metadata");
   }
 }
