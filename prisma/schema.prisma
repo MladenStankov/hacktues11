@@ -14,7 +14,7 @@ datasource db {
 }
 
 model User {
-  id                      String               @id
+  id                      String    @id
   name                    String
   email                   String
   uniqueCitizenshipNumber String?
@@ -29,7 +29,7 @@ model User {
   sessions                Session[]
   accounts                Account[]
   doctor                  Doctor?
-  patient     Patient?
+  patient                 Patient?
 
   @@unique([email])
   @@map("user")
@@ -122,7 +122,7 @@ model Doctor {
   hospital       String?
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
-  appointments Appointment[]
+  appointments   Appointment[]
 
   @@map("doctor")
 }
@@ -133,13 +133,13 @@ enum Gender {
 }
 
 enum BloodType {
-  AB_POSTIVE
+  AB_POSITIVE
   AB_NEGATIVE
   A_POSITIVE
   A_NEGATIVE
   B_POSITIVE
   B_NEGATIVE
-  O_POSTIVE
+  O_POSITIVE
   O_NEGATIVE
 }
 
@@ -150,6 +150,7 @@ model Patient {
   heightCm    Int
   weightKg    Float
   phoneNumber String
+  dateOfBirth DateTime
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -167,11 +168,11 @@ model Appointment {
   completed Boolean  @default(false)
   notes     String? // after completion
 
-  patientId String @unique
-  patient   Patient   @relation(fields: [patientId], references: [id])
+  patientId String  @unique
+  patient   Patient @relation(fields: [patientId], references: [id])
 
   doctorId String @unique
-  doctor   Doctor   @relation(fields: [doctorId], references: [id])
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
 
   @@map("appointment")
 }
