@@ -20,16 +20,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "../ui/input";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
+import { signUp } from "@/lib/auth-client";
 
 export default function SignUpForm() {
   const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpFormSchema),
@@ -64,9 +67,21 @@ export default function SignUpForm() {
     }
   };
 
-  const handleSubmit = (data: SignUpFormValues) => {
-    console.log(data);
-    setIsSubmitted(true);
+  const handleSubmit = async (data: SignUpFormValues) => {
+    setIsLoading(true);
+    const response = await signUp.email({
+      email: data.email,
+      password: data.password,
+      name: `${data.firstName} ${data.middleName} ${data.lastName}`,
+      callbackURL: "/",
+    });
+
+    if (response.error) {
+      toast.error(response.error.message);
+    } else {
+      setIsSubmitted(true);
+    }
+    setIsLoading(false);
   };
 
   const renderStepContent = () => {
@@ -96,8 +111,8 @@ export default function SignUpForm() {
             <CheckCircle2 className="h-10 w-10 text-green-600" />
           </div>
           <p className="text-center">
-            Thank you for registering! You can now log in with your email and
-            password.
+            Thank you for registering! You can verify your email address by
+            checking your email
           </p>
         </CardContent>
         <CardFooter>
@@ -161,7 +176,7 @@ export default function SignUpForm() {
                 <ChevronLeft className="mr-2 h-4 w-4" /> Back
               </Button>
             )}
-            {step <= 4 ? (
+            {step < 4 ? (
               <Button
                 type="button"
                 className={step === 1 ? "ml-auto" : ""}
@@ -170,7 +185,13 @@ export default function SignUpForm() {
                 Next <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             ) : (
-              <Button type="submit">Complete Registration</Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <Loader2 className="animate-spin" />
+                ) : (
+                  "Complete Registration"
+                )}
+              </Button>
             )}
           </CardFooter>
           <p className="text-sm text-muted-foreground text-center">
