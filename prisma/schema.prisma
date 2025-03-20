@@ -28,6 +28,7 @@ model User {
   banExpires    DateTime?
   sessions      Session[]
   accounts      Account[]
+  doctor        Doctor?
 
   @@unique([email])
   @@map("user")
@@ -78,3 +79,51 @@ model Verification {
 
   @@map("verification")
 }
+
+enum DoctorSpecialization {
+  GENERAL_PRACTITIONER
+  ALLERGIST
+  ANESTHESIOLOGIST
+  CARDIOLOGIST
+  DERMATOLOGIST
+  ENDOCRINOLOGIST
+  GASTROENTEROLOGIST
+  HEMATOLOGIST
+  INFECTIOUS_DISEASE
+  NEUROLOGIST
+  NEPHROLOGIST
+  OBSTETRICIAN
+  GYNECOLOGIST
+  ONCOLOGIST
+  OPHTHALMOLOGIST
+  ORTHOPEDIC_SURGEON
+  OTOLARYNGOLOGIST
+  PEDIATRICIAN
+  PSYCHIATRIST
+  PULMONOLOGIST
+  RADIOLOGIST
+  RHEUMATOLOGIST
+  UROLOGIST
+  PATHOLOGIST
+  PLASTIC_SURGEON
+  GENERAL_SURGEON
+  VASCULAR_SURGEON
+  NEUROSURGEON
+  DENTIST
+}
+
+model Doctor {
+  id                String                @id
+  userId            String                @unique
+  user              User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  licenseNumber     String                @unique
+  specialization    DoctorSpecialization
+  hospital          String?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  @@map("doctor")
+}
+
+
+
