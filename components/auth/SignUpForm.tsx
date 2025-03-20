@@ -28,7 +28,6 @@ import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { signUp } from "@/lib/auth-client";
-import { setIdNumber } from "@/app/actions/user";
 
 export default function SignUpForm() {
   const [step, setStep] = useState(1);
@@ -80,7 +79,6 @@ export default function SignUpForm() {
     if (response.error) {
       toast.error(response.error.message);
     } else {
-      setIdNumber(response.data.user.id, data.idNumber);
       setIsSubmitted(true);
     }
     setIsLoading(false);
