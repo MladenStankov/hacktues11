@@ -14,21 +14,22 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  idNumber      String?
-  emailVerified Boolean
-  image         String?
-  createdAt     DateTime
-  updatedAt     DateTime
-  role          String?
-  banned        Boolean?
-  banReason     String?
-  banExpires    DateTime?
-  sessions      Session[]
-  accounts      Account[]
-  doctor        Doctor?
+  id                      String               @id
+  name                    String
+  email                   String
+  uniqueCitizenshipNumber String?
+  emailVerified           Boolean
+  image                   String?
+  createdAt               DateTime
+  updatedAt               DateTime
+  role                    String?
+  banned                  Boolean?
+  banReason               String?
+  banExpires              DateTime?
+  sessions                Session[]
+  accounts                Account[]
+  doctor                  Doctor?
+  patient     Patient?
 
   @@unique([email])
   @@map("user")
@@ -70,7 +71,7 @@ model Account {
 }
 
 model Verification {
-  id         String    @id
+  id         String    @id @default(uuid())
   identifier String
   value      String
   expiresAt  DateTime
@@ -113,17 +114,64 @@ enum DoctorSpecialization {
 }
 
 model Doctor {
-  id                String                @id
-  userId            String                @unique
-  user              User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  licenseNumber     String                @unique
-  specialization    DoctorSpecialization
-  hospital          String?
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
+  id             String               @id @default(uuid())
+  userId         String               @unique
+  user           User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  licenseNumber  String               @unique
+  specialization DoctorSpecialization
+  hospital       String?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  appointments Appointment[]
 
   @@map("doctor")
 }
 
+enum Gender {
+  MALE
+  FEMALE
+}
 
+enum BloodType {
+  AB_POSTIVE
+  AB_NEGATIVE
+  A_POSITIVE
+  A_NEGATIVE
+  B_POSITIVE
+  B_NEGATIVE
+  O_POSTIVE
+  O_NEGATIVE
+}
 
+model Patient {
+  id          String    @id @default(uuid())
+  gender      Gender
+  bloodType   BloodType
+  heightCm    Int
+  weightKg    Float
+  phoneNumber String
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  appointments Appointment[]
+
+  @@map("patient")
+}
+
+model Appointment {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  date      DateTime
+  reason    String
+  completed Boolean  @default(false)
+  notes     String? // after completion
+
+  patientId String @unique
+  patient   Patient   @relation(fields: [patientId], references: [id])
+
+  doctorId String @unique
+  doctor   Doctor   @relation(fields: [doctorId], references: [id])
+
+  @@map("appointment")
+}
