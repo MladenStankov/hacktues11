@@ -39,11 +39,15 @@ export default function AuthButtons({ session }: { session: Session | null }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent className="space-y-1 w-fit flex flex-col p-2">
             <DropdownMenuItem className="p-0">
-              <Link href="/sign-up/patient">Sign Up as Patient</Link>
+              <Button variant="ghost" asChild>
+                <Link href="/sign-up/patient">Sign Up as Patient</Link>
+              </Button>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="p-0">
-              <Button variant="ghost">Sign Up as Doctor</Button>
+              <Button variant="ghost" asChild>
+                <Link href="/sign-up/doctor">Sign Up as Doctor</Link>
+              </Button>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
