@@ -25,6 +25,7 @@ import { Button } from "../ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "../ui/input";
 import { Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
 
 export default function SignUpForm() {
   const [step, setStep] = useState(1);
@@ -172,6 +173,12 @@ export default function SignUpForm() {
               <Button type="submit">Complete Registration</Button>
             )}
           </CardFooter>
+          <p className="text-sm text-muted-foreground text-center">
+            Already have an account?{" "}
+            <Link href="/sign-in" className="text-primary hover:underline">
+              Sign in
+            </Link>
+          </p>
         </Card>
       </form>
     </Form>

@@ -1,98 +1,124 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Mail, Lock, AlertCircle } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Mail, Lock } from "lucide-react";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signInFormSchema, type SignInFormValues } from "@/lib/zod-schemas";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
+  const form = useForm<SignInFormValues>({
+    resolver: zodResolver(signInFormSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    // Basic validation
-    if (!email || !password) {
-      setError("Please fill in all fields")
-      return
-    }
-
+  const handleSubmit = (values: SignInFormValues) => {
     // Here you would typically handle authentication
-    console.log("Login attempt with:", { email, password })
-    setError("")
-  }
+    console.log("Login attempt with:", values);
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Sign in to your account</CardTitle>
-          <CardDescription className="text-center">Enter your email and password to sign in</CardDescription>
+          <CardTitle className="text-2xl font-bold text-center">
+            Sign in to your account
+          </CardTitle>
+          <CardDescription className="text-center">
+            Enter your email and password to sign in
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {error && (
-            <div className="flex items-center gap-2 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
-              <AlertCircle className="h-4 w-4" />
-              <p>{error}</p>
-            </div>
-          )}
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(handleSubmit)}
+              className="space-y-4"
+            >
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type="email"
+                          placeholder="name@example.com"
+                          className="pl-10"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="name@example.com"
-                  className="pl-10"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-            </div>
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center justify-between">
+                      <FormLabel>Password</FormLabel>
+                      <a
+                        href="#"
+                        className="text-sm text-primary hover:underline"
+                      >
+                        Forgot password?
+                      </a>
+                    </div>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <FormControl>
+                        <Input {...field} type="password" className="pl-10" />
+                      </FormControl>
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <a href="#" className="text-sm text-primary hover:underline">
-                  Forgot password?
-                </a>
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type="password"
-                  className="pl-10"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <Button type="submit" className="w-full">
-              Sign in
-            </Button>
-          </form>
+              <Button type="submit" className="w-full">
+                Sign in
+              </Button>
+            </form>
+          </Form>
         </CardContent>
         <CardFooter className="flex justify-center">
           <p className="text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
-            <a href="#" className="text-primary hover:underline">
+            <Link href="/sign-up" className="text-primary hover:underline">
               Sign up
-            </a>
+            </Link>
           </p>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
-
