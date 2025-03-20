@@ -17,41 +17,57 @@ export default async function Header() {
           <Link href="/">
             <span className="text-xl font-bold">CareLink</span>
           </Link>
-      </div>
-      {session ? (
-        <nav className="hidden md:flex gap-6">
-          <Link
-            href="/#features"
-            className="text-sm font-medium hover:text-primary"
-          >
-            Features
-          </Link>
-          <Link href="/#about" className="text-sm font-medium hover:text-primary">
-            About Us
-          </Link>
-          <Link
-            href="/#contact"
-            className="text-sm font-medium hover:text-primary"
-          >
-            Contact
-          </Link>
+        </div>
+
+        <nav className="hidden md:flex gap-6 items-center">
+          {!session ? (
+            <>
+              <Link
+                href="/#features"
+                className="text-sm font-medium hover:text-primary"
+              >
+                Features
+              </Link>
+              <Link
+                href="/#about"
+                className="text-sm font-medium hover:text-primary"
+              >
+                About Us
+              </Link>
+              <Link
+                href="/#contact"
+                className="text-sm font-medium hover:text-primary"
+              >
+                Contact
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/dashboard"
+                className="text-sm font-medium hover:text-primary"
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/appointments"
+                className="text-sm font-medium hover:text-primary"
+              >
+                Appointments
+              </Link>
+              <Link
+                href="/doctors"
+                className="text-sm font-medium hover:text-primary"
+              >
+                Doctors
+              </Link>
+            </>
+          )}
         </nav>
-      ) :
-        (
-          <nav className="hidden md:flex gap-6">
-            <Link href="/dashboard" className="text-sm font-medium hover:text-primary"            >
-              Dashboard
-            </Link>
-            <Link href="/appointments" className="text-sm font-medium hover:text-primary">
-              Appointments
-            </Link>
-            <Link href="/doctors" className="text-sm font-medium hover:text-primary"            >
-              Doctors
-            </Link>
-          </nav>
-        )
-      }
-      <AuthButtons session={session} />
+        <div className="hidden md:flex gap-6">
+          <AuthButtons session={session} />
+        </div>
+      </div>
     </div>
     </div>
   );
