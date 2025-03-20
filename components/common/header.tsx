@@ -10,31 +10,35 @@ export default async function Header() {
   });
 
   return (
-    <div className="container flex h-16 items-center justify-between p-4">
-      <div className="flex items-center gap-2">
-        <Heart className="h-6 w-6 text-primary" />
-        <Link href="/">
-          <span className="text-xl font-bold">CareLink</span>
-        </Link>
+    <div className="bg-gray-100 shadow-md">
+      <div className="container flex h-16 items-center justify-between p-4">
+        <div className="flex items-center gap-2">
+          <Heart className="h-6 w-6 text-primary" />
+          <Link href="/">
+            <span className="text-xl font-bold">CareLink</span>
+          </Link>
+        </div>
+        <nav className="hidden md:flex gap-6">
+          <Link
+            href="/#features"
+            className="text-sm font-medium hover:text-primary"
+          >
+            Features
+          </Link>
+          <Link 
+            href="/#about" 
+            className="text-sm font-medium hover:text-primary">
+            About Us
+          </Link>
+          <Link
+            href="/#contact"
+            className="text-sm font-medium hover:text-primary"
+          >
+            Contact
+          </Link>
+        </nav>
+        <AuthButtons session={session} />
       </div>
-      <nav className="hidden md:flex gap-6">
-        <Link
-          href="/#features"
-          className="text-sm font-medium hover:text-primary"
-        >
-          Features
-        </Link>
-        <Link href="/#about" className="text-sm font-medium hover:text-primary">
-          About Us
-        </Link>
-        <Link
-          href="/#contact"
-          className="text-sm font-medium hover:text-primary"
-        >
-          Contact
-        </Link>
-      </nav>
-      <AuthButtons session={session} />
     </div>
   );
 }

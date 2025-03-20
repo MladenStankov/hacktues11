@@ -28,9 +28,11 @@ export default function LandingPage() {
                   Get Started
                 </Button>
               </Link>
+              <Link href="#about">
                 <Button size="lg" variant="outline">
                   Learn More
                 </Button>
+              </Link>
               </div>
             </div>
             <div className="flex justify-center lg:justify-end">
