@@ -19,22 +19,16 @@ export default async function Header() {
       </div>
       <nav className="hidden md:flex gap-6">
         <Link
-          href="#features"
+          href="/#features"
           className="text-sm font-medium hover:text-primary"
         >
           Features
         </Link>
-        <Link
-          href="#testimonials"
-          className="text-sm font-medium hover:text-primary"
-        >
-          Testimonials
-        </Link>
-        <Link href="#about" className="text-sm font-medium hover:text-primary">
+        <Link href="/#about" className="text-sm font-medium hover:text-primary">
           About Us
         </Link>
         <Link
-          href="#contact"
+          href="/#contact"
           className="text-sm font-medium hover:text-primary"
         >
           Contact
