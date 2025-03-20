@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<medical_report>
+    <patient>
+        <name>Petur Kalaev Nikolov</name>
+        <egn>0641438290</egn>
+        <treating_doctor>Dr. Spas Delchev - OPL-Sv. Mina</treating_doctor>
+        <date_of_measurement>2021-01-20</date_of_measurement>
+    </patient>
+    <hematology>
+        <test>
+            <name>WBC (White Blood Cells)</name>
+            <result>20.4</result>
+            <unit>x10^9/L</unit>
+            <reference_range>3.50 - 10.50</reference_range>
+        </test>
+        <test>
+            <name>Neutrophils (Neut#)</name>
+            <result>2.640</result>
+            <unit>x10^9/L</unit>
+            <reference_range>2.000 - 7.000</reference_range>
+        </test>
+        <test>
+            <name>Eosinophils (Eos#)</name>
+            <result>0.220</result>
+            <unit>x10^9/L</unit>
+            <reference_range>Up to 0.500</reference_range>
+        </test>
+        <test>
+            <name>Monocytes (Mo#)</name>
+            <result>0.680</result>
+            <unit>x10^9/L</unit>
+            <reference_range>Up to 0.800</reference_range>
+        </test>
+        <test>
+            <name>Lymphocytes (Ly#)</name>
+            <result>2.580</result>
+            <unit>x10^9/L</unit>
+            <reference_range>1.000 - 4.000</reference_range>
+        </test>
+        <test>
+            <name>Basophils (Baso#)</name>
+            <result>0.050</result>
+            <unit>x10^9/L</unit>
+            <reference_range>Up to 0.140</reference_range>
+        </test>
+        <test>
+            <name>Neutrophils (Neu%)</name>
+            <result>42.8</result>
+            <unit>%</unit>
+            <reference_range>40 - 75</reference_range>
+        </test>
+        <test>
+            <name>Eosinophils (Eos%)</name>
+            <result>3.5</result>
+            <unit>%</unit>
+            <reference_range>Up to 5.0</reference_range>
+        </test>
+        <test>
+            <name>Monocytes (Mo%)</name>
+            <result>11.0</result>
+            <unit>%</unit>
+            <reference_range>1.0 - 11.0</reference_range>
+        </test>
+        <test>
+            <name>Lymphocytes (Ly%)</name>
+            <result>41.9</result>
+            <unit>%</unit>
+            <reference_range>20.0 - 48.0</reference_range>
+        </test>
+        <test>
+            <name>Basophils (Baso%)</name>
+            <result>0.8</result>
+            <unit>%</unit>
+        </test>
+        <test>
+            <name>RBC (Red Blood Cells)</name>
+            <result>5.51</result>
+            <unit>x10^12/L</unit>
+            <reference_range>4.50 - 5.50</reference_range>
+        </test>
+        <test>
+            <name>HB (Hemoglobin)</name>
+            <result>157</result>
+            <unit>g/L</unit>
+            <reference_range>128 - 168</reference_range>
+        </test>
+        <test>
+            <name>HCT (Hematocrit)</name>
+            <result>0.470</result>
+            <unit>L/L</unit>
+            <reference_range>0.380 - 0.490</reference_range>
+        </test>
+        <test>
+            <name>MCV (Mean Corpuscular Volume)</name>
+            <result>85.3</result>
+            <unit>fL</unit>
+            <reference_range>77.0 - 92.0</reference_range>
+        </test>
+        <test>
+            <name>MCH (Mean Corpuscular Hemoglobin)</name>
+            <result>28.5</result>
+            <unit>pg</unit>
+            <reference_range>25.0 - 32.0</reference_range>
+        </test>
+        <test>
+            <name>MCHC (Mean Corpuscular Hemoglobin Concentration)</name>
+            <result>334</result>
+            <unit>g/L</unit>
+            <reference_range>320 - 360</reference_range>
+        </test>
+        <test>
+            <name>RDW (Red Cell Distribution Width)</name>
+            <result>14.9</result>
+            <unit>%</unit>
+            <reference_range>11.0 - 15.5</reference_range>
+        </test>
+        <test>
+            <name>PLT (Platelets)</name>
+            <result>181</result>
+            <unit>x10^9/L</unit>
+            <reference_range>130 - 440</reference_range>
+        </test>
+        <test>
+            <name>MPV (Mean Platelet Volume)</name>
+            <result>8.7</result>
+            <unit>fL</unit>
+            <reference_range>7.2 - 11.0</reference_range>
+        </test>
+        <test>
+            <name>Pct (Plateletcrit)</name>
+            <result>1.60</result>
+            <unit>ml/L</unit>
+            <reference_range>2.00 - 4.10</reference_range>
+        </test>
+        <test>
+            <name>PDW (Platelet Distribution Width)</name>
+            <result>25.8</result>
+            <unit>%</unit>
+            <reference_range>10.0 - 50.0</reference_range>
+        </test>
+    </hematology>
+    <biochemistry>
+        <test>
+            <name>Total Bilirubin</name>
+            <result>32.50</result>
+            <unit>μmol/l</unit>
+            <reference_range>Up to 21.00</reference_range>
+        </test>
+        <test>
+            <name>Direct Bilirubin</name>
+            <result>2.60</result>
+            <unit>μmol/l</unit>
+            <reference_range>Up to 6.50</reference_range>
+        </test>
+        <test>
+            <name>AST (Aspartate Aminotransferase)</name>
+            <result>17.20</result>
+            <unit>U/l</unit>
+            <reference_range>Up to 40.00</reference_range>
+        </test>
+        <test>
+            <name>ALT (Alanine Aminotransferase)</name>
+            <result>11.80</result>
+            <unit>U/l</unit>
+            <reference_range>Up to 33.00</reference_range>
+        </test>
+    </biochemistry>
+</medical_report>
