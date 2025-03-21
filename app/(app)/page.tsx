@@ -6,13 +6,13 @@ import { Heart, Shield, Clock, Users, ArrowRight, Phone, Mail } from "lucide-rea
 
 export default function LandingPage() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col ">
 
       {/* Hero Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-background to-muted/30">
-        <div className="container px-4 md:px-6">
+      <section className="w-full py-12 md:py-24 lg:py-32 bg-gradient-to-b from-background to-muted/30 max-w-7xl mx-auto">
+        <div className="container px-4 md:px-6 ">
           <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
-            <div className="flex flex-col justify-center space-y-4">
+            <div className="flex flex-col justify-center space-y-4 pl-8">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
                   Connecting Care, <span className="text-primary">Enhancing Lives</span>
@@ -49,7 +49,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="w-full py-12 md:py-24 lg:py-32">
+      <section id="features" className="w-full py-12 md:py-24 lg:py-32 max-w-7xl mx-auto">
         <div className="container px-4 md:px-6">
           <div className="flex flex-col items-center justify-center space-y-4 text-center">
             <div className="space-y-2">
@@ -106,7 +106,7 @@ export default function LandingPage() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="w-full py-12 md:py-24 lg:py-32">
+      <section id="about" className="w-full py-12 md:py-24 lg:py-32 max-w-7xl mx-auto">
         <div className="container px-4 md:px-6">
           <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
             <div className="flex justify-center lg:justify-start">

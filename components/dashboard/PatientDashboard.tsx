@@ -23,11 +23,12 @@ import {
   User,
   ClipboardList,
   Loader2,
+  AlertCircle,
 } from "lucide-react";
 import {
-  // getPatientAppointments,
+  getPatientAppointments,
   getPatientInfo,
-  // getPatientMedicalExams,
+  getPatientMedicalExams,
   type AppointmentWithDoctor,
 } from "@/app/actions/patient-actions";
 import {
@@ -35,8 +36,14 @@ import {
   formatGender,
   calculateBMI,
 } from "@/lib/patient-utils";
-// import type { MedicalExam } from "@/lib/xml-parser";
-import { Patient } from "@prisma/client";
+import type { MedicalExam, MedicalResult } from "@/lib/xml-parser";
+import type { Patient } from "@prisma/client";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface PatientDashboardProps {
   patientId: string | undefined;
@@ -54,7 +61,7 @@ export default function PatientInfoDashboard({
     patient: Patient | null;
   } | null>(null);
   const [appointments, setAppointments] = useState<AppointmentWithDoctor[]>([]);
-  // const [medicalExams, setMedicalExams] = useState<MedicalExam[]>([]);
+  const [medicalExams, setMedicalExams] = useState<MedicalExam[]>([]);
   const [loading, setLoading] = useState({
     patient: true,
     appointments: true,
@@ -76,20 +83,22 @@ export default function PatientInfoDashboard({
 
       try {
         setLoading((prev) => ({ ...prev, patient: true }));
-        console.log("Fetching patient info for ID:", patientId);
+        // console.log("Fetching patient info for ID:", patientId);
         const patientData = await getPatientInfo(patientId);
         console.log("Patient data received:", patientData ? "success" : "null");
         setPatient(patientData);
         setLoading((prev) => ({ ...prev, patient: false }));
 
         setLoading((prev) => ({ ...prev, appointments: true }));
-        // const appointmentsData = await getPatientAppointments(patientId);
-        setAppointments([]);
+        const appointmentsData = await getPatientAppointments(
+          patientData.patient?.id
+        );
+        setAppointments(appointmentsData);
         setLoading((prev) => ({ ...prev, appointments: false }));
 
         setLoading((prev) => ({ ...prev, exams: true }));
-        // const examsData = await getPatientMedicalExams(patientId);
-        // setMedicalExams(examsData);
+        const examsData = await getPatientMedicalExams(patientId);
+        setMedicalExams(examsData);
         setLoading((prev) => ({ ...prev, exams: false }));
       } catch (err) {
         console.error("Error loading patient data:", err);
@@ -157,7 +166,7 @@ export default function PatientInfoDashboard({
             <div className="flex flex-col items-center space-y-2">
               <Avatar className="h-24 w-24">
                 <AvatarImage
-                  src={patient.image || "/placeholder.svg?height=96&width=96"}
+                  src={patient.image || "/default_user_image.jpg"}
                   alt={patient.name}
                 />
                 <AvatarFallback>{patient.name}</AvatarFallback>
@@ -268,10 +277,10 @@ export default function PatientInfoDashboard({
             </TabsContent>
 
             <TabsContent value="exams">
-              {/* <MedicalExamResults
+              <MedicalExamResults
                 exams={medicalExams}
                 loading={loading.exams}
-              /> */}
+              />
             </TabsContent>
           </Tabs>
         </div>
@@ -403,134 +412,151 @@ function AppointmentHistory({
   );
 }
 
-// interface MedicalExamResultsProps {
-//   exams: MedicalExam[];
-//   loading: boolean;
-// }
+interface MedicalExamResultsProps {
+  exams: MedicalExam[];
+  loading: boolean;
+}
 
-// function MedicalExamResults({ exams, loading }: MedicalExamResultsProps) {
-//   if (loading) {
-//     return (
-//       <Card>
-//         <CardHeader>
-//           <CardTitle>Medical Exam Results</CardTitle>
-//           <CardDescription>
-//             Laboratory tests and diagnostic results
-//           </CardDescription>
-//         </CardHeader>
-//         <CardContent className="flex h-[400px] items-center justify-center">
-//           <Loader2 className="h-8 w-8 animate-spin text-primary" />
-//           <span className="ml-2">Loading medical exams...</span>
-//         </CardContent>
-//       </Card>
-//     );
-//   }
+function MedicalExamResults({ exams, loading }: MedicalExamResultsProps) {
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Medical Exam Results</CardTitle>
+          <CardDescription>
+            Laboratory tests and diagnostic results
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex h-[400px] items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2">Loading medical exams...</span>
+        </CardContent>
+      </Card>
+    );
+  }
 
-//   if (exams.length === 0) {
-//     return (
-//       <Card>
-//         <CardHeader>
-//           <CardTitle>Medical Exam Results</CardTitle>
-//           <CardDescription>
-//             Laboratory tests and diagnostic results
-//           </CardDescription>
-//         </CardHeader>
-//         <CardContent className="text-center py-8">
-//           <p className="text-muted-foreground">
-//             No medical exam results found.
-//           </p>
-//         </CardContent>
-//       </Card>
-//     );
-//   }
+  if (exams.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Medical Exam Results</CardTitle>
+          <CardDescription>
+            Laboratory tests and diagnostic results
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="text-center py-8">
+          <p className="text-muted-foreground">
+            No medical exam results found.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
-//   return (
-//     <Card>
-//       <CardHeader>
-//         <CardTitle>Medical Exam Results</CardTitle>
-//         <CardDescription>
-//           Laboratory tests and diagnostic results
-//         </CardDescription>
-//       </CardHeader>
-//       <CardContent className="max-h-[600px] overflow-y-auto pr-1">
-//         <div className="space-y-6">
-//           {exams.map((exam) => (
-//             <div key={exam.id} className="rounded-md border">
-//               <div className="border-b bg-muted/40 px-4 py-2">
-//                 <div className="flex flex-wrap items-center justify-between gap-2">
-//                   <div className="flex items-center gap-2">
-//                     <Calendar className="h-4 w-4 text-muted-foreground" />
-//                     <span className="font-medium">
-//                       {new Date(exam.date).toLocaleDateString()}
-//                     </span>
-//                   </div>
-//                   <Badge variant="outline">{exam.type}</Badge>
-//                 </div>
-//               </div>
-//               <div className="p-4">
-//                 <div className="mb-2">
-//                   <div className="font-medium">{exam.orderedBy.name}</div>
-//                   <div className="text-sm text-muted-foreground">
-//                     {exam.orderedBy.department}
-//                   </div>
-//                 </div>
-//                 <div className="space-y-2">
-//                   {exam.results.length > 0 ? (
-//                     <div>
-//                       <div className="text-sm font-medium">Results</div>
-//                       <div className="mt-2 space-y-2">
-//                         {exam.results.map((result, idx) => (
-//                           <div
-//                             key={result.id || idx}
-//                             className="grid grid-cols-4 gap-2 text-sm"
-//                           >
-//                             <div className="font-medium">{result.name}</div>
-//                             <div>{result.value}</div>
-//                             <div>
-//                               <Badge
-//                                 variant={
-//                                   result.status === "Normal"
-//                                     ? "outline"
-//                                     : result.status === "Elevated" ||
-//                                         result.status === "High" ||
-//                                         result.status === "Low" ||
-//                                         result.status === "Mild Impairment" ||
-//                                         result.status.includes("Abnormal")
-//                                       ? "destructive"
-//                                       : "outline"
-//                                 }
-//                                 className="text-xs"
-//                               >
-//                                 {result.status}
-//                               </Badge>
-//                             </div>
-//                             <div className="text-muted-foreground">
-//                               {result.range}
-//                             </div>
-//                           </div>
-//                         ))}
-//                       </div>
-//                     </div>
-//                   ) : (
-//                     <div className="text-sm text-muted-foreground">
-//                       No detailed results available
-//                     </div>
-//                   )}
-//                   <div>
-//                     <div className="text-sm font-medium">Notes</div>
-//                     <div className="text-sm">{exam.notes}</div>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-//       </CardContent>
-//       <CardFooter>
-//         <Button variant="outline" className="w-full">
-//           Download Medical Exam Results
-//         </Button>
-//       </CardFooter>
-//     </Card>
-//   );
-// }
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Medical Exam Results</CardTitle>
+        <CardDescription>
+          Laboratory tests and diagnostic results
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="max-h-[600px] overflow-y-auto pr-1">
+        <div className="space-y-6">
+          {exams.map((exam) => (
+            <div key={exam.id} className="rounded-md border">
+              <div className="border-b bg-muted/40 px-4 py-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">
+                      {new Date(exam.date).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <Badge variant="outline">{exam.type}</Badge>
+                </div>
+              </div>
+              <div className="p-4">
+                <div className="mb-2">
+                  <div className="font-medium">{exam.orderedBy.name}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {exam.orderedBy.department}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {exam.results.length > 0 ? (
+                    <div>
+                      <div className="text-sm font-medium">Results</div>
+                      <div className="mt-2 space-y-2">
+                        {exam.results.map((result, idx) => (
+                          <ResultRow key={result.id || idx} result={result} />
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      No detailed results available
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-sm font-medium">Notes</div>
+                    <div className="text-sm">{exam.notes}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Button variant="outline" className="w-full">
+          Download Medical Exam Results
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
+
+interface ResultRowProps {
+  result: MedicalResult;
+}
+
+function ResultRow({ result }: ResultRowProps) {
+  const isAbnormal = result.isAbnormal;
+
+  return (
+    <TooltipProvider>
+      <div className="grid grid-cols-5 gap-2 text-sm">
+        <div className="font-medium">{result.name}</div>
+        <div className={isAbnormal ? "text-destructive font-medium" : ""}>
+          {result.value} {result.unit}
+        </div>
+        <div>
+          <Badge
+            variant={isAbnormal ? "destructive" : "outline"}
+            className="text-xs"
+          >
+            {result.status}
+          </Badge>
+          {isAbnormal && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <AlertCircle className="h-3 w-3 text-destructive ml-1 inline cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  {result.status.includes("High")
+                    ? "Above normal range"
+                    : result.status.includes("Low")
+                      ? "Below normal range"
+                      : "Abnormal result"}
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+        <div className="text-muted-foreground col-span-2">{result.range}</div>
+      </div>
+    </TooltipProvider>
+  );
+}

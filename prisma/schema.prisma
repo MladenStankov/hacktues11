@@ -167,13 +167,21 @@ model Appointment {
   reason    String
   completed Boolean  @default(false)
   notes     String? // after completion
-  xmlFiles String[] // copy of the 
+  xmlFiles  String[] // copy of the 
 
-  patientId String  @unique
+  patientId String
   patient   Patient @relation(fields: [patientId], references: [id])
 
-  doctorId String @unique
+  doctorId String
   doctor   Doctor @relation(fields: [doctorId], references: [id])
 
   @@map("appointment")
+}
+
+model AiOpinion {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  text      String
+
+  @@map("aiOpinion")
 }
