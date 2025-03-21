@@ -1,7 +1,8 @@
 import { AppointmentForm } from "@/components/appointments/appointment-form"
 import { PageHeader } from "@/components/appointments/page-header"
 
-export default function AppointmentsPage() {
+
+export default async function AppointmentsPage() {
   return (
     <div className="container mx-auto py-6 space-y-8">
       <PageHeader

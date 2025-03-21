@@ -5,7 +5,7 @@ import Link from "next/link"
 import { CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import type { Doctor } from "./doctor-search"
+import { Doctor, User } from "@prisma/client"
 
 interface AppointmentConfirmationProps {
   appointmentDetails: {
@@ -14,7 +14,7 @@ interface AppointmentConfirmationProps {
     appointmentType?: string
     notes: string
   }
-  doctor?: Doctor | null
+  doctor?: Doctor & { user: User } | null
 }
 
 export function AppointmentConfirmation({ appointmentDetails, doctor }: AppointmentConfirmationProps) {
@@ -26,6 +26,11 @@ export function AppointmentConfirmation({ appointmentDetails, doctor }: Appointm
     consultation: "Consultation",
     vaccination: "Vaccination",
     other: "Other",
+  }
+  if(doctor === null)
+  {
+    console.log("losho");
+    return
   }
 
   return (
@@ -43,8 +48,8 @@ export function AppointmentConfirmation({ appointmentDetails, doctor }: Appointm
             <div className="border rounded-lg p-4 flex items-start gap-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Doctor</p>
-                <p className="text-lg font-medium">{doctor.name}</p>
-                <p className="text-sm">{doctor.specialty}</p>
+                <p className="text-lg font-medium">{doctor.user.name}</p>
+                <p className="text-sm">{doctor.specialization}</p>
                 <p className="text-sm">{doctor.hospital}</p>
               </div>
             </div>
