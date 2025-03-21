@@ -4,6 +4,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import AuthButtons from "./AuthButtons";
+import MobileNavigation from "./mobile";
 export default async function Header() {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -64,6 +65,9 @@ export default async function Header() {
             </>
           )}
         </nav>
+        <div className="md:hidden">
+          <MobileNavigation session={session} />
+        </div>
         <div className="hidden md:flex gap-6">
           <AuthButtons session={session} />
         </div>
