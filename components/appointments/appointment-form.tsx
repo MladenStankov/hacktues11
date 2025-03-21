@@ -1,75 +1,117 @@
 "use client";
 
-import { useState } from "react";
-import { CalendarIcon } from "lucide-react";
-import { Input } from "../ui/input";
-import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react"
+import { CalendarIcon } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { TimeSlotPicker } from "./time-slot-picker"
+import { AppointmentConfirmation } from "./appointment-confirmation"
+import { DoctorSearch } from "./doctor-search"
+import { useForm } from "react-hook-form"
+import { Doctor, User } from "@prisma/client"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { createAppointment } from "@/app/actions/appointment-actions"
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { TimeSlotPicker } from "./time-slot-picker";
-import { AppointmentConfirmation } from "./appointment-confirmation";
-import { DoctorSearch } from "./doctor-search";
-import { useForm } from "react-hook-form";
-import { Doctor, User } from "@prisma/client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeader } from "./page-header";
+const formSchema = z.object({
+  date: z.date({
+    required_error: "Please select a date",
+    invalid_type_error: "That's not a valid date!",
+  }),
+  time: z.string().min(1, "Please select a time slot"),
+  reason: z.string().min(1, "Please select an appointment reason"),
+  notes: z.string().optional(),
+})
 
-type AppointmentFormValues = {
-  date: Date | undefined;
-  time: string | undefined;
-  appointmentType: string | undefined;
-  notes: string;
-};
+type AppointmentFormValues = z.infer<typeof formSchema>
 
 export function AppointmentForm() {
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [appointmentDetails, setAppointmentDetails] = useState<
     (AppointmentFormValues & { doctor?: Doctor & { user: User } }) | null
-  >(null);
-  const [selectedDoctor, setSelectedDoctor] = useState<
-    (Doctor & { user: User }) | null
-  >(null);
-  const [activeTab, setActiveTab] = useState("find-doctor");
+  >(null)
+  const [selectedDoctor, setSelectedDoctor] = useState<(Doctor & { user: User }) | null>(null)
+  const [activeTab, setActiveTab] = useState("find-doctor")
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   const form = useForm<AppointmentFormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       date: undefined,
-      time: undefined,
-      appointmentType: undefined,
+      time: "",
+      reason: "",
       notes: "",
     },
   });
 
-  function onSubmit(data: AppointmentFormValues) {
-    console.log({ ...data, doctor: selectedDoctor });
-    setAppointmentDetails({ ...data, doctor: selectedDoctor ?? undefined });
-    setIsSubmitted(true);
-  }
+  // Clear messages after 5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSuccessMessage(null)
+      setErrorMessage(null)
+    }, 5000)
+    return () => clearTimeout(timer)
+  }, [successMessage, errorMessage])
 
-  // This function handles the doctor selection and ensures it has both Doctor and User
+  async function onSubmit(data: AppointmentFormValues) {
+    if (!selectedDoctor) {
+      setErrorMessage("Please select a doctor before booking")
+      return
+    }
+  
+    setIsSubmitting(true)
+    setErrorMessage(null)
+    setSuccessMessage(null)
+  
+    try {
+      if (!(data.date instanceof Date) || isNaN(data.date.getTime())) {
+        throw new Error("Invalid date selected")
+      }
+  
+      const [hours, minutes] = data.time.split(":").map(Number);
+      const appointmentDateTime = new Date(data.date);
+      appointmentDateTime.setHours(hours, minutes, 0, 0);
+
+      console.log("Final appointment date:", appointmentDateTime);
+      if (isNaN(appointmentDateTime.getTime())) {
+        throw new Error("Invalid time selected");
+      }
+
+      console.log("Final appointment date:", appointmentDateTime)
+  
+      const patientId = "current_patient_id"
+      const result = await createAppointment({
+        doctorId: selectedDoctor.id,
+        patientId,
+        date: appointmentDateTime,
+        reason: data.reason,
+        notes: data.notes || "",
+      })
+  
+      if (result?.error) {
+        throw new Error(result.error)
+      }
+  
+      setAppointmentDetails({ ...data, doctor: selectedDoctor })
+      setIsSubmitted(true)
+      setSuccessMessage("Your appointment has been successfully scheduled!")
+    } catch (error: any) {
+      setErrorMessage(error.message || "There was an error booking your appointment")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+  
+
   function handleDoctorSelect(doctor: Doctor & { user: User }) {
     setSelectedDoctor(doctor);
   }
@@ -115,11 +157,7 @@ export function AppointmentForm() {
           </TabsList>
 
           <TabsContent value="find-doctor" className="space-y-4">
-            {/* Make sure DoctorSearch expects a doctor with both Doctor and User */}
-            <DoctorSearch
-              onDoctorSelect={handleDoctorSelect}
-              selectedDoctor={selectedDoctor}
-            />
+            <DoctorSearch onDoctorSelect={handleDoctorSelect} selectedDoctor={selectedDoctor} />
 
             {selectedDoctor && (
               <div className="flex justify-end mt-6">
@@ -139,7 +177,6 @@ export function AppointmentForm() {
                     {selectedDoctor.specialization}
                   </p>
                   <p className="text-sm">{selectedDoctor.hospital}</p>
-                  <p className="text-xs mt-1">Available: test</p>
                 </div>
                 <Button
                   variant="outline"
@@ -158,7 +195,7 @@ export function AppointmentForm() {
                 className="space-y-6"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
+                <FormField
                     control={form.control}
                     name="date"
                     render={({ field }) => (
@@ -175,14 +212,11 @@ export function AppointmentForm() {
                                 )}
                               >
                                 {field.value ? (
-                                  new Date(field.value).toLocaleDateString(
-                                    "en-US",
-                                    {
-                                      year: "numeric",
-                                      month: "long",
-                                      day: "numeric",
-                                    }
-                                  )
+                                  field.value.toLocaleDateString("en-US", {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                  })
                                 ) : (
                                   <span>Select a date</span>
                                 )}
@@ -191,18 +225,18 @@ export function AppointmentForm() {
                             </FormControl>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
-                            <Input
-                              type="date"
-                              {...field}
-                              value={
-                                field.value instanceof Date
-                                  ? field.value.toISOString().split("T")[0]
-                                  : ""
+                          <Input
+                            type="date"
+                            value={field.value ? field.value.toISOString().split("T")[0] : ""}
+                            onChange={(e) => {
+                              const selectedDate = e.target.value ? new Date(e.target.value + "T00:00:00Z") : null;
+                              if (selectedDate && !isNaN(selectedDate.getTime())) {
+                                field.onChange(selectedDate);
+                              } else {
+                                field.onChange(null);
                               }
-                              onChange={(e) =>
-                                field.onChange(new Date(e.target.value))
-                              }
-                            />
+                            }}
+                          />
                           </PopoverContent>
                         </Popover>
                         <FormDescription>
@@ -212,7 +246,6 @@ export function AppointmentForm() {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="time"
@@ -221,7 +254,7 @@ export function AppointmentForm() {
                         <FormLabel>Time</FormLabel>
                         <Select
                           onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          value={field.value}
                           disabled={!form.watch("date")}
                         >
                           <FormControl>
@@ -247,17 +280,14 @@ export function AppointmentForm() {
 
                 <FormField
                   control={form.control}
-                  name="appointmentType"
+                  name="reason"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Appointment Type</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
+                      <FormLabel>Appointment Reason</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select appointment type" />
+                            <SelectValue placeholder="Select appointment reason" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -276,9 +306,7 @@ export function AppointmentForm() {
                           <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormDescription>
-                        Select the type of appointment you need.
-                      </FormDescription>
+                      <FormDescription>Select the reason for your appointment</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -306,9 +334,23 @@ export function AppointmentForm() {
                   )}
                 />
 
-                <Button type="submit" className="w-full">
-                  Book Appointment
-                </Button>
+                <div className="space-y-4">
+                  {successMessage && (
+                    <div className="p-4 bg-green-100 text-green-800 rounded-md animate-fade-in">
+                      {successMessage}
+                    </div>
+                  )}
+
+                  {errorMessage && (
+                    <div className="p-4 bg-red-100 text-red-800 rounded-md animate-fade-in">
+                      {errorMessage}
+                    </div>
+                  )}
+
+                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting ? "Booking..." : "Book Appointment"}
+                  </Button>
+                </div>
               </form>
             </Form>
           </TabsContent>
