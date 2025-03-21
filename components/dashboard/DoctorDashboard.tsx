@@ -253,6 +253,7 @@ export default function DoctorDashboard({ doctorId }: DoctorDashboardProps) {
                   className="ut-button:bg-primary ut-button:text-white ut-button:hover:bg-primary/90"
                   endpoint="xmlUploader"
                   onClientUploadComplete={(res) => {
+                    console.log("res", res);
                     if (res?.[0]?.url) {
                       setXmlData(res[0].url);
                       setUploadSuccess(true);
