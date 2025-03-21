@@ -151,6 +151,7 @@ model Patient {
   weightKg    Float
   phoneNumber String
   dateOfBirth DateTime
+  summaryId   String    @default(uuid())
 
   userId String @unique
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
