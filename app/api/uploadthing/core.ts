@@ -15,7 +15,6 @@ export const ourFileRouter = {
         },
     })
         .middleware(async () => {
-            return {}; // temp za test
 
             const session = await auth.api.getSession({
                 headers: await headers(),
@@ -24,17 +23,22 @@ export const ourFileRouter = {
             if (!session) throw new UploadThingError("Not logged in");
 
             const doctor = await prisma.doctor.findUnique({
-                where: { userId: "user-id-here" },
+                where: { userId: session.user.id },
               });
             if(!doctor) throw new UploadThingError("Not a doctor");
             
             return { doctor: doctor };
         })
-        .onUploadComplete(async ({ file }) => {
-            // console.log("Uploaded by:", metadata.userId);
-            console.log("file url", file.ufsUrl);
-            return {}
-            //return { uploadedBy: metadata.userId };
+        .onUploadComplete(async ({ file, metadata }) => {
+            console.log("Uploaded by:", metadata.doctor);
+            console.log("file url", file.ufsUrl); // shte pazim v bazata 
+            return {
+                uploadedBy: {
+                    ...metadata.doctor,
+                    createdAt: metadata.doctor.createdAt.toISOString(), // Date is not a valid JSON type
+                    updatedAt: metadata.doctor.updatedAt.toISOString(),
+                },
+            };
         }),
 } satisfies FileRouter;
 
