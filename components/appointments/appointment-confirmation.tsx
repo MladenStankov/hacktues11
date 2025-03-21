@@ -12,7 +12,7 @@ interface AppointmentConfirmationProps {
     date?: Date
     time?: string
     appointmentType?: string
-    notes: string
+    notes?: string
   }
   doctor?: Doctor & { user: User } | null
 }
