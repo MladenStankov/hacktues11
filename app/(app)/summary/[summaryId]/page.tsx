@@ -1,11 +1,9 @@
 import prisma from "@/lib/prisma";
 
-export default async function UserPage({
-  params,
-}: {
-  params: { summaryId: string };
-}) {
-  const { summaryId } = params;
+type Params = Promise<{ summaryId: string }>;
+
+export default async function SummaryPage({ params }: { params: Params }) {
+  const { summaryId } = await params;
 
   try {
     // Fetch the user data using Prisma
