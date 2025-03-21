@@ -1,0 +1,232 @@
+"use client"
+
+import { useState } from "react"
+import { CalendarIcon } from "lucide-react"
+import { format } from "date-fns"
+
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Textarea } from "@/components/ui/textarea"
+import { TimeSlotPicker } from "./time-slot-picker"
+import { AppointmentConfirmation } from "./appointment-confirmation"
+import { DoctorSearch, type Doctor } from "./doctor-search"
+import { useForm } from "react-hook-form"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+
+type AppointmentFormValues = {
+  date: Date | undefined
+  time: string | undefined
+  appointmentType: string | undefined
+  notes: string
+}
+
+export function AppointmentForm() {
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [appointmentDetails, setAppointmentDetails] = useState<(AppointmentFormValues & { doctor?: Doctor }) | null>(
+    null,
+  )
+  const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null)
+  const [activeTab, setActiveTab] = useState("find-doctor")
+
+  const form = useForm<AppointmentFormValues>({
+    defaultValues: {
+      date: undefined,
+      time: undefined,
+      appointmentType: undefined,
+      notes: "",
+    },
+  })
+
+  function onSubmit(data: AppointmentFormValues) {
+    console.log({ ...data, doctor: selectedDoctor })
+    setAppointmentDetails({ ...data, doctor: selectedDoctor ?? undefined })
+    setIsSubmitted(true)
+  }
+  
+
+  function handleDoctorSelect(doctor: Doctor) {
+    setSelectedDoctor(doctor)
+  }
+
+  function handleContinueToBooking() {
+    if (selectedDoctor) {
+      setActiveTab("book-appointment")
+    }
+  }
+
+  if (isSubmitted && appointmentDetails) {
+    return <AppointmentConfirmation appointmentDetails={appointmentDetails} doctor={selectedDoctor} />
+  }
+
+  return (
+    <Card className="max-w-3xl mx-auto">
+      <CardHeader>
+        <CardTitle>Schedule an Appointment</CardTitle>
+        <CardDescription>Find a doctor and book your appointment in two simple steps.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="find-doctor">1. Find a Doctor</TabsTrigger>
+            <TabsTrigger value="book-appointment" disabled={!selectedDoctor}>
+              2. Book Appointment
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="find-doctor" className="space-y-4">
+            <DoctorSearch onDoctorSelect={handleDoctorSelect} selectedDoctor={selectedDoctor} />
+
+            {selectedDoctor && (
+              <div className="flex justify-end mt-6">
+                <Button onClick={handleContinueToBooking}>Continue to Booking</Button>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="book-appointment">
+            {selectedDoctor && (
+              <div className="mb-6 p-4 bg-muted rounded-lg flex items-start gap-4">
+                <div>
+                  <h3 className="font-medium">{selectedDoctor.name}</h3>
+                  <p className="text-sm text-muted-foreground">{selectedDoctor.specialty}</p>
+                  <p className="text-sm">{selectedDoctor.hospital}</p>
+                  <p className="text-xs mt-1">Available: {selectedDoctor.availability}</p>
+                </div>
+                <Button variant="outline" size="sm" className="ml-auto" onClick={() => setActiveTab("find-doctor")}>
+                  Change
+                </Button>
+              </div>
+            )}
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="date"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>Date</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                              >
+                                {field.value ? format(field.value, "PPP") : <span>Select a date</span>}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date < new Date(new Date().setHours(0, 0, 0, 0)) ||
+                                date.getDay() === 0 ||
+                                date.getDay() === 6
+                              }
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        <FormDescription>Select a weekday for your appointment.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="time"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Time</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          disabled={!form.watch("date")}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a time" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <TimeSlotPicker selectedDate={form.watch("date")} onTimeSelected={field.onChange} />
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Choose an available time slot.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="appointmentType"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Appointment Type</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select appointment type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="general-checkup">General Check-up</SelectItem>
+                          <SelectItem value="follow-up">Follow-up Visit</SelectItem>
+                          <SelectItem value="consultation">Consultation</SelectItem>
+                          <SelectItem value="vaccination">Vaccination</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>Select the type of appointment you need.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Additional Notes</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Please provide any additional information about your visit"
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Optional: Include any symptoms or concerns you&apos;d like to discuss.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button type="submit" className="w-full">
+                  Book Appointment
+                </Button>
+              </form>
+            </Form>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
+  )
+}
+
