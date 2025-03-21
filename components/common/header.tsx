@@ -1,10 +1,10 @@
 import React from "react";
-import { HeartHandshake } from "lucide-react";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import AuthButtons from "./AuthButtons";
 import MobileNavigation from "./mobile";
+import Image from "next/image";
 export default async function Header() {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -14,9 +14,14 @@ export default async function Header() {
     <div className="bg-linear-65 from-primary to-primary/80 backdrop-blur-xl  shadow-md text-amber-50 fixed top-0 w-full z-10">
       <div className="container flex h-16 items-center justify-between p-4">
         <div className="flex items-center gap-2">
-          <HeartHandshake className="h-6 w-6 text-secondary" />
           <Link href="/">
-            <span className="text-xl font-bold">CareLink</span>
+            <Image
+              src="/logo.svg"
+              alt="CareLink"
+              width={150}
+              height={50}
+              className="stroke-white invert-100"
+            />
           </Link>
         </div>
 

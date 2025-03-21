@@ -8,7 +8,7 @@ const authRoutes = [
   "/sign-up/doctor",
   "/sign-up/patient",
 ];
-const protectedRoutes = ["/checkout"];
+const protectedRoutes = ["/dashboard", "/appointments"];
 const adminRoutes = [
   "/admin/dashboard",
   "/admin/products",
