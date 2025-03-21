@@ -1,86 +1,111 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { format } from "date-fns"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Calendar, Clock, FileText, Mail, Phone, User, ClipboardList, Loader2 } from "lucide-react"
+import { useEffect, useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Calendar,
+  Clock,
+  FileText,
+  Mail,
+  Phone,
+  User,
+  ClipboardList,
+  Loader2,
+} from "lucide-react";
 import {
   getPatientAppointments,
   getPatientInfo,
   getPatientMedicalExams,
-  type PatientWithUser,
   type AppointmentWithDoctor,
-} from "@/app/actions/patient-actions"
-import { formatBloodType, formatGender, calculateBMI } from "@/lib/patient-utils"
-import type { MedicalExam } from "@/lib/xml-parser"
-import {Patient, User as UserType} from "@prisma/client"
+} from "@/app/actions/patient-actions";
+import {
+  formatBloodType,
+  formatGender,
+  calculateBMI,
+} from "@/lib/patient-utils";
+import type { MedicalExam } from "@/lib/xml-parser";
+import { Patient } from "@prisma/client";
 
 interface PatientDashboardProps {
-  patientId: string | undefined
+  patientId: string | undefined;
 }
 
-export default function PatientInfoDashboard({ patientId }: PatientDashboardProps) {
-  const [patient, setPatient] = useState<{patient: Patient & UserType} | null>(null)
-  const [appointments, setAppointments] = useState<AppointmentWithDoctor[]>([])
-  const [medicalExams, setMedicalExams] = useState<MedicalExam[]>([])
+export default function PatientInfoDashboard({
+  patientId,
+}: PatientDashboardProps) {
+  const [patient, setPatient] = useState<{
+    id: string;
+    name: string;
+    email: string;
+    image: string | null;
+    uniqueCitizenshipNumber: string | null;
+    patient: Patient | null;
+  } | null>(null);
+  const [appointments, setAppointments] = useState<AppointmentWithDoctor[]>([]);
+  const [medicalExams, setMedicalExams] = useState<MedicalExam[]>([]);
   const [loading, setLoading] = useState({
     patient: true,
     appointments: true,
     exams: true,
-  })
-  const [error, setError] = useState<string | null>(null)
+  });
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadData() {
-      
       if (!patientId) {
-        setError("Invalid patient ID")
+        setError("Invalid patient ID");
         setLoading({
           patient: false,
           appointments: false,
           exams: false,
-        })
-        return
+        });
+        return;
       }
 
       try {
-        
-        setLoading((prev) => ({ ...prev, patient: true }))
-        console.log("Fetching patient info for ID:", patientId)
-        const patientData = await getPatientInfo(patientId)
-        console.log("Patient data received:", patientData ? "success" : "null")
-        setPatient(patientData)
-        setLoading((prev) => ({ ...prev, patient: false }))
+        setLoading((prev) => ({ ...prev, patient: true }));
+        console.log("Fetching patient info for ID:", patientId);
+        const patientData = await getPatientInfo(patientId);
+        console.log("Patient data received:", patientData ? "success" : "null");
+        setPatient(patientData);
+        setLoading((prev) => ({ ...prev, patient: false }));
 
-        
-        setLoading((prev) => ({ ...prev, appointments: true }))
-        const appointmentsData = await getPatientAppointments(patientId)
-        setAppointments(appointmentsData)
-        setLoading((prev) => ({ ...prev, appointments: false }))
+        setLoading((prev) => ({ ...prev, appointments: true }));
+        const appointmentsData = await getPatientAppointments(patientId);
+        setAppointments(appointmentsData);
+        setLoading((prev) => ({ ...prev, appointments: false }));
 
-        
-        setLoading((prev) => ({ ...prev, exams: true }))
-        const examsData = await getPatientMedicalExams(patientId)
-        setMedicalExams(examsData)
-        setLoading((prev) => ({ ...prev, exams: false }))
+        setLoading((prev) => ({ ...prev, exams: true }));
+        const examsData = await getPatientMedicalExams(patientId);
+        setMedicalExams(examsData);
+        setLoading((prev) => ({ ...prev, exams: false }));
       } catch (err) {
-        console.error("Error loading patient data:", err)
-        setError(err instanceof Error ? err.message : "Failed to load patient data")
+        console.error("Error loading patient data:", err);
+        setError(
+          err instanceof Error ? err.message : "Failed to load patient data"
+        );
         setLoading({
           patient: false,
           appointments: false,
           exams: false,
-        })
+        });
       }
     }
 
-    loadData()
-  }, [patientId])
+    loadData();
+  }, [patientId]);
 
   if (loading.patient) {
     return (
@@ -88,10 +113,10 @@ export default function PatientInfoDashboard({ patientId }: PatientDashboardProp
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <span className="ml-2">Loading patient data...</span>
       </div>
-    )
+    );
   }
 
-  if (error || !patient) {
+  if (error || !patient || !patient.patient) {
     return (
       <div className="flex h-[600px] w-full items-center justify-center">
         <div className="text-center">
@@ -102,25 +127,23 @@ export default function PatientInfoDashboard({ patientId }: PatientDashboardProp
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
-  
   const calculateAge = (dateOfBirth: Date): number => {
-    const today = new Date()
-    const birthDate = new Date(dateOfBirth)
-    let age = today.getFullYear() - birthDate.getFullYear()
-    const m = today.getMonth() - birthDate.getMonth()
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-      age--
+      age--;
     }
-    return age
-  }
+    return age;
+  };
 
-  const patientAge = calculateAge(patient.patient.dateOfBirth)
+  const patientAge = calculateAge(patient.patient.dateOfBirth);
 
-  
-  const bmi = calculateBMI(patient.patient.heightCm, patient.patient.weightKg)
+  const bmi = calculateBMI(patient.patient.heightCm, patient.patient.weightKg);
 
   return (
     <div className="container mx-auto py-6">
@@ -134,17 +157,17 @@ export default function PatientInfoDashboard({ patientId }: PatientDashboardProp
             <div className="flex flex-col items-center space-y-2">
               <Avatar className="h-24 w-24">
                 <AvatarImage
-                  src={patient.patient.image || "/placeholder.svg?height=96&width=96"}
-                  alt={patient.patient.name}
+                  src={patient.image || "/placeholder.svg?height=96&width=96"}
+                  alt={patient.name}
                 />
-                <AvatarFallback>
-                  {patient.patient.name}
-                </AvatarFallback>
+                <AvatarFallback>{patient.name}</AvatarFallback>
               </Avatar>
               <div className="text-center">
-                <h2 className="text-xl font-bold">{patient.patient.name}</h2>
+                <h2 className="text-xl font-bold">{patient.name}</h2>
                 <p className="text-sm text-muted-foreground">
-                  DOB: {format(new Date(patient.patient.dateOfBirth), "MM/dd/yyyy")} ({patientAge} yrs)
+                  DOB:{" "}
+                  {new Date(patient.patient.dateOfBirth).toLocaleDateString()} (
+                  {patientAge} yrs)
                 </p>
               </div>
             </div>
@@ -163,12 +186,14 @@ export default function PatientInfoDashboard({ patientId }: PatientDashboardProp
                 <div>{formatBloodType(patient.patient.bloodType)}</div>
                 <div className="text-muted-foreground">Height</div>
                 <div>
-                  {patient.patient.heightCm} cm ({Math.floor(patient.patient.heightCm / 2.54 / 12)}&apos;
+                  {patient.patient.heightCm} cm (
+                  {Math.floor(patient.patient.heightCm / 2.54 / 12)}&apos;
                   {Math.round(patient.patient.heightCm / 2.54) % 12}&quot;)
                 </div>
                 <div className="text-muted-foreground">Weight</div>
                 <div>
-                  {patient.patient.weightKg} kg ({Math.round(patient.patient.weightKg * 2.20462)} lbs)
+                  {patient.patient.weightKg} kg (
+                  {Math.round(patient.patient.weightKg * 2.20462)} lbs)
                 </div>
                 <div className="text-muted-foreground">BMI</div>
                 <div>
@@ -191,12 +216,12 @@ export default function PatientInfoDashboard({ patientId }: PatientDashboardProp
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="h-3 w-3 text-muted-foreground" />
-                  <span>{patient.patient.email}</span>
+                  <span>{patient.email}</span>
                 </div>
-                {patient.patient.uniqueCitizenshipNumber && (
+                {patient.uniqueCitizenshipNumber && (
                   <div className="flex items-start gap-2">
                     <User className="h-3 w-3 text-muted-foreground mt-0.5" />
-                    <span>ID: {patient.patient.uniqueCitizenshipNumber}</span>
+                    <span>ID: {patient.uniqueCitizenshipNumber}</span>
                   </div>
                 )}
               </div>
@@ -214,9 +239,12 @@ export default function PatientInfoDashboard({ patientId }: PatientDashboardProp
         {}
         <div className="space-y-6">
           <div className="space-y-1">
-            <h1 className="text-2xl font-bold tracking-tight">Patient Records</h1>
+            <h1 className="text-2xl font-bold tracking-tight">
+              Patient Records
+            </h1>
             <p className="text-sm text-muted-foreground">
-              Medical record #{patient.patient.id.substring(0, 8)} • Last updated: {format(new Date(), "MMMM d, yyyy")}
+              Medical record #{patient.patient.id.substring(0, 8)} • Last
+              updated: {new Date().toLocaleDateString()}
             </p>
           </div>
 
@@ -233,38 +261,49 @@ export default function PatientInfoDashboard({ patientId }: PatientDashboardProp
             </TabsList>
 
             <TabsContent value="appointments">
-              <AppointmentHistory appointments={appointments} loading={loading.appointments} />
+              <AppointmentHistory
+                appointments={appointments}
+                loading={loading.appointments}
+              />
             </TabsContent>
 
             <TabsContent value="exams">
-              <MedicalExamResults exams={medicalExams} loading={loading.exams} />
+              <MedicalExamResults
+                exams={medicalExams}
+                loading={loading.exams}
+              />
             </TabsContent>
           </Tabs>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 interface AppointmentHistoryProps {
-  appointments: AppointmentWithDoctor[]
-  loading: boolean
+  appointments: AppointmentWithDoctor[];
+  loading: boolean;
 }
 
-function AppointmentHistory({ appointments, loading }: AppointmentHistoryProps) {
+function AppointmentHistory({
+  appointments,
+  loading,
+}: AppointmentHistoryProps) {
   if (loading) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>Previous Appointments</CardTitle>
-          <CardDescription>Complete record of past medical visits</CardDescription>
+          <CardDescription>
+            Complete record of past medical visits
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex h-[400px] items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="ml-2">Loading appointments...</span>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (appointments.length === 0) {
@@ -272,20 +311,24 @@ function AppointmentHistory({ appointments, loading }: AppointmentHistoryProps) 
       <Card>
         <CardHeader>
           <CardTitle>Previous Appointments</CardTitle>
-          <CardDescription>Complete record of past medical visits</CardDescription>
+          <CardDescription>
+            Complete record of past medical visits
+          </CardDescription>
         </CardHeader>
         <CardContent className="text-center py-8">
           <p className="text-muted-foreground">No appointment history found.</p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Previous Appointments</CardTitle>
-        <CardDescription>Complete record of past medical visits</CardDescription>
+        <CardDescription>
+          Complete record of past medical visits
+        </CardDescription>
       </CardHeader>
       <CardContent className="max-h-[600px] overflow-y-auto pr-1">
         <div className="space-y-6">
@@ -295,23 +338,32 @@ function AppointmentHistory({ appointments, loading }: AppointmentHistoryProps) 
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{format(new Date(appointment.date), "MMMM d, yyyy")}</span>
+                    <span className="font-medium">
+                      {new Date(appointment.date).toLocaleDateString()}
+                    </span>
                     <span className="text-sm text-muted-foreground">
                       <Clock className="mr-1 inline-block h-3 w-3" />
-                      {format(new Date(appointment.date), "h:mm a")}
+                      {new Date(appointment.date).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      })}
                     </span>
                   </div>
-                  <Badge variant={appointment.completed ? "outline" : "default"}>
+                  <Badge
+                    variant={appointment.completed ? "outline" : "default"}
+                  >
                     {appointment.completed ? "Completed" : "Scheduled"}
                   </Badge>
                 </div>
               </div>
               <div className="p-4">
                 <div className="mb-2">
-                  <div className="font-medium">{appointment.doctor.user.name}</div>
+                  <div className="font-medium">
+                    {appointment.doctor.user.name}
+                  </div>
                   <div className="text-sm text-muted-foreground">
-                    {appointment.doctor.specialization
-                    }
+                    {appointment.doctor.specialization}
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -348,12 +400,12 @@ function AppointmentHistory({ appointments, loading }: AppointmentHistoryProps) 
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
 
 interface MedicalExamResultsProps {
-  exams: MedicalExam[]
-  loading: boolean
+  exams: MedicalExam[];
+  loading: boolean;
 }
 
 function MedicalExamResults({ exams, loading }: MedicalExamResultsProps) {
@@ -362,14 +414,16 @@ function MedicalExamResults({ exams, loading }: MedicalExamResultsProps) {
       <Card>
         <CardHeader>
           <CardTitle>Medical Exam Results</CardTitle>
-          <CardDescription>Laboratory tests and diagnostic results</CardDescription>
+          <CardDescription>
+            Laboratory tests and diagnostic results
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex h-[400px] items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="ml-2">Loading medical exams...</span>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (exams.length === 0) {
@@ -377,20 +431,26 @@ function MedicalExamResults({ exams, loading }: MedicalExamResultsProps) {
       <Card>
         <CardHeader>
           <CardTitle>Medical Exam Results</CardTitle>
-          <CardDescription>Laboratory tests and diagnostic results</CardDescription>
+          <CardDescription>
+            Laboratory tests and diagnostic results
+          </CardDescription>
         </CardHeader>
         <CardContent className="text-center py-8">
-          <p className="text-muted-foreground">No medical exam results found.</p>
+          <p className="text-muted-foreground">
+            No medical exam results found.
+          </p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Medical Exam Results</CardTitle>
-        <CardDescription>Laboratory tests and diagnostic results</CardDescription>
+        <CardDescription>
+          Laboratory tests and diagnostic results
+        </CardDescription>
       </CardHeader>
       <CardContent className="max-h-[600px] overflow-y-auto pr-1">
         <div className="space-y-6">
@@ -400,7 +460,9 @@ function MedicalExamResults({ exams, loading }: MedicalExamResultsProps) {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{format(new Date(exam.date), "MMMM d, yyyy")}</span>
+                    <span className="font-medium">
+                      {new Date(exam.date).toLocaleDateString()}
+                    </span>
                   </div>
                   <Badge variant="outline">{exam.type}</Badge>
                 </div>
@@ -408,7 +470,9 @@ function MedicalExamResults({ exams, loading }: MedicalExamResultsProps) {
               <div className="p-4">
                 <div className="mb-2">
                   <div className="font-medium">{exam.orderedBy.name}</div>
-                  <div className="text-sm text-muted-foreground">{exam.orderedBy.department}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {exam.orderedBy.department}
+                  </div>
                 </div>
                 <div className="space-y-2">
                   {exam.results.length > 0 ? (
@@ -416,7 +480,10 @@ function MedicalExamResults({ exams, loading }: MedicalExamResultsProps) {
                       <div className="text-sm font-medium">Results</div>
                       <div className="mt-2 space-y-2">
                         {exam.results.map((result, idx) => (
-                          <div key={result.id || idx} className="grid grid-cols-4 gap-2 text-sm">
+                          <div
+                            key={result.id || idx}
+                            className="grid grid-cols-4 gap-2 text-sm"
+                          >
                             <div className="font-medium">{result.name}</div>
                             <div>{result.value}</div>
                             <div>
@@ -437,13 +504,17 @@ function MedicalExamResults({ exams, loading }: MedicalExamResultsProps) {
                                 {result.status}
                               </Badge>
                             </div>
-                            <div className="text-muted-foreground">{result.range}</div>
+                            <div className="text-muted-foreground">
+                              {result.range}
+                            </div>
                           </div>
                         ))}
                       </div>
                     </div>
                   ) : (
-                    <div className="text-sm text-muted-foreground">No detailed results available</div>
+                    <div className="text-sm text-muted-foreground">
+                      No detailed results available
+                    </div>
                   )}
                   <div>
                     <div className="text-sm font-medium">Notes</div>
@@ -461,6 +532,5 @@ function MedicalExamResults({ exams, loading }: MedicalExamResultsProps) {
         </Button>
       </CardFooter>
     </Card>
-  )
+  );
 }
-
