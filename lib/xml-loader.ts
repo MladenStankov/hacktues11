@@ -41,7 +41,7 @@ async function fetchAppointmentXMLs(appointmentId: string) {
     }
 }
 
-async function fetchMultipleAppointmentsXMLs(appointmentIds: string[]) {
+export async function fetchMultipleAppointmentsXMLs(appointmentIds: string[]) {
     try {
         const xmlContents = await Promise.all(
             appointmentIds.map(async (id) => await fetchAppointmentXMLs(id))

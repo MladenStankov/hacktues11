@@ -1,10 +1,10 @@
 "use server"
 
-import { getXMLFiles } from "@/lib/xml-loader"
+import { fetchMultipleAppointmentsXMLs } from "@/lib/xml-loader"
 
 
-export async function makeSuggestion() {
-    const xmlFiles = await getXMLFiles()
+export async function makeSuggestion(appointmentIds: string[]) {
+    const xmlFiles = await fetchMultipleAppointmentsXMLs(appointmentIds)
     
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
