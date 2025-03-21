@@ -26,6 +26,7 @@ export const ourFileRouter = {
                 where: { userId: session.user.id },
               });
             if(!doctor) throw new UploadThingError("Not a doctor");
+
             
             return { doctor: doctor };
         })

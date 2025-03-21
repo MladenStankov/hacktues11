@@ -12,7 +12,6 @@ import { Menu, X } from "lucide-react";
 import { Session } from "@/lib/auth";
 import AuthButtons from "./AuthButtons";
 import Link from "next/link";
-import { Separator } from "../ui/separator";
 
 interface IProps {
     session: Session | null;
