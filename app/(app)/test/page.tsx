@@ -3,6 +3,11 @@
 import { makeSuggestion } from '@/app/actions/make-suggestion'
 import { Button } from '@/components/ui/button'
 import { UploadButton } from '@/app/actions/uploadthing'
+//import prisma from '@/lib/prisma'
+//import { getPatientAppointments } from '@/app/actions/patient-actions'
+//import { auth } from '@/lib/auth'
+//import { headers } from 'next/headers'
+
 //import { z } from "zod";
 //import { DoctorSpecialization } from "@prisma/client";
 //import { type ClientUploadedFileData } from "uploadthing/types";
@@ -18,9 +23,17 @@ import { UploadButton } from '@/app/actions/uploadthing'
     updatedAt: z.string(),
 });*/
 
+
+
 export default function page() {
     const handleClick = async () => {
-        await makeSuggestion()
+//        const session = await auth.api.getSession({
+//            headers: await headers(),
+//          });
+//        const patientId = session?.user?.id;
+//        const appointments = await getPatientAppointments(patientId)
+//        console.log(appointments)
+        await makeSuggestion([""])
     }
 
     // type Doctor = z.infer<typeof DoctorSchema>;
