@@ -60,6 +60,13 @@ interface AppointmentsListProps {
   type: "upcoming" | "past";
 }
 
+function formatSpecialization(specialization: string): string {
+  return specialization
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}
+
 export default function DoctorDashboard({ doctorId }: DoctorDashboardProps) {
   const [doctor, setDoctor] = useState<DoctorWithUser | null>(null);
   const [appointments, setAppointments] = useState<AppointmentWithPatient[]>(
@@ -129,7 +136,11 @@ export default function DoctorDashboard({ doctorId }: DoctorDashboardProps) {
               </Avatar>
               <div className="text-center">
                 <h2 className="text-xl font-bold">Dr. {doctor?.name}</h2>
-                <Badge>{doctor?.doctor?.specialization}</Badge>
+                <Badge variant="secondary" className="text-sm">
+                  {doctor?.doctor?.specialization
+                    ? formatSpecialization(doctor.doctor.specialization)
+                    : "No Specialization"}
+                </Badge>
               </div>
             </div>
 
