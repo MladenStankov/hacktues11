@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -36,73 +36,44 @@ export function AppointmentFilter({
         reason: "",
         doctor: "",
     })
-    const [validAppointments, setValidAppointments] = useState<Appointment[]>([])
+    const [doctorNames, setDoctorNames] = useState<{ [key: string]: string }>({});
 
     useEffect(() => {
         const loadAppointments = async () => {
             try {
-                const data = await findAllApointments()
-                setAppointments(data)
+                const data = await findAllApointments();
+                console.log("appointments: ", data);
+                // setAppointments(data);
+                setAppointments(data);
             } catch (error) {
-                console.error("Failed to fetch appointments:", error)
+                console.error("Failed to fetch appointments:", error);
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
-        }
-
-        loadAppointments()
-    }, [])
-
-    useEffect(() => {
-        const loadAppointments = async () => {
-            try {
-                const filtered = await Promise.all(
-                    appointments.map(async (appointment) => {
-                        const dateMatch =
-                            !filters.date ||
-                            new Date(appointment.date).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "2-digit",
-                                day: "2-digit"
-                            }) === new Date(filters.date).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "2-digit",
-                                day: "2-digit"
-                            });
-            
-                        const reasonMatch =
-                            !filters.reason ||
-                            appointment.reason.toLowerCase().includes(filters.reason.toLowerCase());
-            
-                        
-                        const doctorUser = await getDoctor(appointment.doctorId)
-            
-                        if (!doctorUser) {
-                            return null
-                        }
-            
-            
-                        const doctorMatch =
-                            !filters.doctor ||
-                            (doctorUser?.name?.toLowerCase() || "").includes(filters.doctor.toLowerCase());
-            
-                        return dateMatch && reasonMatch && doctorMatch ? appointment : null;
-                    })
-                );
-
-                const validApps = filtered.filter((appointment) => appointment !== null);
-                setValidAppointments(validApps)
-            } catch (error) {
-                console.error("Failed to fetch appointments:", error)
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        loadAppointments()
-    }, [filters])
-
+        };
     
+        loadAppointments();
+    }, []); 
+    
+
+    useEffect(() => {
+        const fetchDoctorNames = async () => {
+            const doctorData: { [key: string]: string } = {};
+            for (const appointment of appointments) {
+                if (!doctorNames[appointment.doctorId]) { 
+                    console.log("app: ", appointment);
+                    const doctor = await getDoctor(appointment.doctorId);
+                    console.log("doctor: ", doctor);
+                    doctorData[appointment.doctorId] = doctor?.name || "Unknown";
+                }
+            }
+            setDoctorNames((prev) => ({ ...prev, ...doctorData }));
+        };
+    
+        if (appointments.length > 0) {
+            fetchDoctorNames();
+        }
+    }, [appointments]);
 
 
     const toggleAppointment = (appointment: Appointment) => {
@@ -243,14 +214,14 @@ export function AppointmentFilter({
                                         </div>
                                     ))}
                                 </div>
-                            ) : validAppointments.length === 0 ? (
+                            ) : appointments.length === 0 ? (
                                 <div className="p-6 text-center">
                                     <p className="text-muted-foreground">No appointments found</p>
                                     <p className="text-sm mt-2">Try adjusting your filters</p>
                                 </div>
                             ) : (
                                 <div className="p-4 space-y-2">
-                                    {validAppointments.map(async (appointment) => (
+                                    {appointments.map((appointment) => (
                                         <div
                                             key={appointment?.id}
                                             className={cn(
@@ -272,7 +243,7 @@ export function AppointmentFilter({
                                                 </Label>
                                                 <div className="text-sm text-muted-foreground mt-1">
                                                     <div>Date: {new Date(appointment.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</div>
-                                                    <div>Doctor: {(await getDoctor(appointment.doctorId).then((doctor) => doctor?.name))}</div>
+                                                    <div>Doctor: {doctorNames[appointment.doctorId] || "Loading..."}</div>  
                                                 </div>
                                             </div>
                                         </div>
@@ -290,7 +261,7 @@ export function AppointmentFilter({
                                         <h3 className="font-medium">{doctor}</h3>
                                         <div className="space-y-2 pl-4">
                                             {appointments
-                                                .filter((a) => a.doctorId === doctor && validAppointments.some((fa) => fa.id === a.id))
+                                                .filter((a) => a.doctorId === doctor && appointments.some((fa) => fa.id === a.id))
                                                 .map((appointment) => (
                                                     <div
                                                         key={appointment.id}
@@ -335,8 +306,8 @@ export function AppointmentFilter({
                                         <h3 className="font-medium">{reason}</h3>
                                         <div className="space-y-2 pl-4">
                                             {appointments
-                                                .filter((a) => a.reason === reason && validAppointments.some((fa) => fa.id === a.id))
-                                                .map(async (appointment) => (
+                                                .filter((a) => a.reason === reason && appointments.some((fa) => fa.id === a.id))
+                                                .map((appointment) => (
                                                     <div
                                                         key={appointment.id}
                                                         className={cn(
@@ -357,7 +328,7 @@ export function AppointmentFilter({
                                                                 htmlFor={`reason-appointment-${appointment.id}`}
                                                                 className="font-medium cursor-pointer"
                                                             >
-                                                                Dr. {(await getDoctor(appointment.doctorId).then((doctor) => doctor?.name))}
+                                                                Dr. {doctorNames[appointment.doctorId] || "Loading..."}
                                                             </Label>
                                                             <div className="text-sm text-muted-foreground">
                                                                 {new Date(appointment.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
