@@ -20,7 +20,7 @@ import { UploadButton } from '@/app/actions/uploadthing'
 
 export default function page() {
     const handleClick = async () => {
-        await makeSuggestion()
+        await makeSuggestion(["1"])
     }
 
     // type Doctor = z.infer<typeof DoctorSchema>;
