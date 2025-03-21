@@ -5,7 +5,7 @@ import SuggestionsBoard from '@/components/ai-suggestions/suggestions-board'
 export default function Page() {
   return (
     <main className="min-h-screen bg-background">
-      <div className="container mx-auto py-6">
+      <div className="container mx-auto py-6 max-w-7xl">
         <h1 className="text-3xl font-bold mb-6">Medical AI Opinion Dashboard</h1>
         <Suspense fallback={<DashboardSkeleton />}>
           <SuggestionsBoard />
