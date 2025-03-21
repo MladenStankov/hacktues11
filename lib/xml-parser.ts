@@ -94,7 +94,7 @@ export async function parseXML(xmlString: string): Promise<MedicalExam | null> {
     // Extract results and convert to our format
     const results: MedicalResult[] = []
 
-    allTests.forEach((test: any) => {
+    allTests.forEach((test) => {
       if (test && test.name) {
         const { isAbnormal, status } = checkIfAbnormal(test.result || "0", test.reference_range || "")
 
