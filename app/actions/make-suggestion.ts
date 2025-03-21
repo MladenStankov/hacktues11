@@ -1,10 +1,12 @@
 "use server"
 
+import { fetchMultipleAppointmentsNotes } from "@/lib/note-loader"
 import { fetchMultipleAppointmentsXMLs } from "@/lib/xml-loader"
 
 
 export async function makeSuggestion(appointmentIds: string[]) {
     const xmlFiles = await fetchMultipleAppointmentsXMLs(appointmentIds)
+    const notes = await fetchMultipleAppointmentsNotes(appointmentIds)
     
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
@@ -34,6 +36,8 @@ export async function makeSuggestion(appointmentIds: string[]) {
                             
                             If you can somehow use both machine learning and human knowledge (from internet) to determine if the 
                             patient is healthy or not, please do so. If not use only human knowledge (from internet).
+                            You can use the following notes given by the doctor as well:
+                            ${notes.join('\n\nNext one: \n')}
                             
                             Additionally try to explain yourself in a way that is easy to understand for the patient.
                             And try not to stress them at all. Be clear that everything is an approximation and that the truth can
