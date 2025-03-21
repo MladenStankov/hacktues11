@@ -1,6 +1,6 @@
 "use client"
 
-import { format } from "date-fns"
+
 import Link from "next/link"
 import { CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -53,7 +53,11 @@ export function AppointmentConfirmation({ appointmentDetails, doctor }: Appointm
           <div className="grid grid-cols-2 gap-4 border rounded-lg p-4">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Date</p>
-              <p className="text-lg font-medium">{date ? format(date, "EEEE, MMMM d, yyyy") : "Not specified"}</p>
+              <p className="text-lg font-medium">{date ? new Date(date).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+              }) : "Not specified"}</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">Time</p>
@@ -86,9 +90,9 @@ export function AppointmentConfirmation({ appointmentDetails, doctor }: Appointm
           Book Another Appointment
         </Button>
         <Link href="/dashboard">
-            <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full">
             Return to Dashboard
-            </Button>
+          </Button>
         </Link>
       </CardFooter>
     </Card>

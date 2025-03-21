@@ -2,11 +2,10 @@
 
 import { useState } from "react"
 import { CalendarIcon } from "lucide-react"
-import { format } from "date-fns"
-
+import { Input } from "../ui/input";
 import { cn } from "@/lib/utils"
+
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -47,7 +46,7 @@ export function AppointmentForm() {
     setAppointmentDetails({ ...data, doctor: selectedDoctor ?? undefined })
     setIsSubmitted(true)
   }
-  
+
 
   function handleDoctorSelect(doctor: Doctor) {
     setSelectedDoctor(doctor)
@@ -119,22 +118,25 @@ export function AppointmentForm() {
                                 variant={"outline"}
                                 className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
                               >
-                                {field.value ? format(field.value, "PPP") : <span>Select a date</span>}
+                                {field.value ? new Date(field.value).toLocaleDateString("en-US", {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric"
+                                }) : <span>Select a date</span>}
                                 <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                               </Button>
                             </FormControl>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date < new Date(new Date().setHours(0, 0, 0, 0)) ||
-                                date.getDay() === 0 ||
-                                date.getDay() === 6
+                            <Input
+                              type="date"
+                              {...field}
+                              value={
+                                field.value instanceof Date
+                                  ? field.value.toISOString().split("T")[0]
+                                  : ""
                               }
-                              initialFocus
+                              onChange={(e) => field.onChange(new Date(e.target.value))}
                             />
                           </PopoverContent>
                         </Popover>
