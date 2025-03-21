@@ -1,24 +1,43 @@
 "use client";
 
-import { useState, useEffect } from "react"
-import { CalendarIcon } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
-import { TimeSlotPicker } from "./time-slot-picker"
-import { AppointmentConfirmation } from "./appointment-confirmation"
-import { DoctorSearch } from "./doctor-search"
-import { useForm } from "react-hook-form"
-import { Doctor, User } from "@prisma/client"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import { createAppointment } from "@/app/actions/appointment-actions"
+import { useState, useEffect } from "react";
+import { CalendarIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { TimeSlotPicker } from "./time-slot-picker";
+import { AppointmentConfirmation } from "./appointment-confirmation";
+import { DoctorSearch } from "./doctor-search";
+import { useForm } from "react-hook-form";
+import { Doctor, User } from "@prisma/client";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { createAppointment } from "@/app/actions/appointment-actions";
+import { PageHeader } from "./page-header";
 
 const formSchema = z.object({
   date: z.date({
@@ -28,20 +47,22 @@ const formSchema = z.object({
   time: z.string().min(1, "Please select a time slot"),
   reason: z.string().min(1, "Please select an appointment reason"),
   notes: z.string().optional(),
-})
+});
 
-type AppointmentFormValues = z.infer<typeof formSchema>
+type AppointmentFormValues = z.infer<typeof formSchema>;
 
-export function AppointmentForm() {
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+export function AppointmentForm({ patientId }: { patientId: string }) {
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [appointmentDetails, setAppointmentDetails] = useState<
     (AppointmentFormValues & { doctor?: Doctor & { user: User } }) | null
-  >(null)
-  const [selectedDoctor, setSelectedDoctor] = useState<(Doctor & { user: User }) | null>(null)
-  const [activeTab, setActiveTab] = useState("find-doctor")
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  >(null);
+  const [selectedDoctor, setSelectedDoctor] = useState<
+    (Doctor & { user: User }) | null
+  >(null);
+  const [activeTab, setActiveTab] = useState("find-doctor");
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const form = useForm<AppointmentFormValues>({
     resolver: zodResolver(formSchema),
@@ -56,61 +77,92 @@ export function AppointmentForm() {
   // Clear messages after 5 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
-      setSuccessMessage(null)
-      setErrorMessage(null)
-    }, 5000)
-    return () => clearTimeout(timer)
-  }, [successMessage, errorMessage])
+      setSuccessMessage(null);
+      setErrorMessage(null);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [successMessage, errorMessage]);
 
   async function onSubmit(data: AppointmentFormValues) {
+    console.log(data);
     if (!selectedDoctor) {
-      setErrorMessage("Please select a doctor before booking")
-      return
+      setErrorMessage("Please select a doctor before booking");
+      return;
     }
-  
-    setIsSubmitting(true)
-    setErrorMessage(null)
-    setSuccessMessage(null)
-  
+
+    setIsSubmitting(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
     try {
       if (!(data.date instanceof Date) || isNaN(data.date.getTime())) {
-        throw new Error("Invalid date selected")
+        throw new Error("Invalid date selected");
       }
-  
-      const [hours, minutes] = data.time.split(":").map(Number);
+
+      console.log("Time value:", data.time);
+
+      if (!data.time) {
+        throw new Error("Time is required");
+      }
+
+      let hours: number;
+      let minutes: number;
+
+      if (data.time.includes("AM") || data.time.includes("PM")) {
+        const [time, period] = data.time.split(" ");
+        const [h, m] = time.split(":").map(Number);
+
+        hours = h;
+        minutes = m;
+
+        if (period === "PM" && hours !== 12) {
+          hours += 12;
+        }
+        if (period === "AM" && hours === 12) {
+          hours = 0;
+        }
+      } else {
+        [hours, minutes] = data.time.split(":").map(Number);
+      }
+
+      if (
+        isNaN(hours) ||
+        isNaN(minutes) ||
+        hours < 0 ||
+        hours > 23 ||
+        minutes < 0 ||
+        minutes > 59
+      ) {
+        throw new Error("Invalid time format");
+      }
+
       const appointmentDateTime = new Date(data.date);
       appointmentDateTime.setHours(hours, minutes, 0, 0);
 
       console.log("Final appointment date:", appointmentDateTime);
-      if (isNaN(appointmentDateTime.getTime())) {
-        throw new Error("Invalid time selected");
-      }
 
-      console.log("Final appointment date:", appointmentDateTime)
-  
-      const patientId = "current_patient_id"
       const result = await createAppointment({
         doctorId: selectedDoctor.id,
         patientId,
         date: appointmentDateTime,
         reason: data.reason,
         notes: data.notes || "",
-      })
-  
+      });
+
       if (result?.error) {
-        throw new Error(result.error)
+        throw new Error(result.error);
       }
-  
-      setAppointmentDetails({ ...data, doctor: selectedDoctor })
-      setIsSubmitted(true)
-      setSuccessMessage("Your appointment has been successfully scheduled!")
-    } catch (error: any) {
-      setErrorMessage(error.message || "There was an error booking your appointment")
+
+      setAppointmentDetails({ ...data, doctor: selectedDoctor });
+      setIsSubmitted(true);
+      setSuccessMessage("Your appointment has been successfully scheduled!");
+    } catch (error) {
+      console.log(error);
+      setErrorMessage("There was an error booking your appointment");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
-  
 
   function handleDoctorSelect(doctor: Doctor & { user: User }) {
     setSelectedDoctor(doctor);
@@ -157,7 +209,10 @@ export function AppointmentForm() {
           </TabsList>
 
           <TabsContent value="find-doctor" className="space-y-4">
-            <DoctorSearch onDoctorSelect={handleDoctorSelect} selectedDoctor={selectedDoctor} />
+            <DoctorSearch
+              onDoctorSelect={handleDoctorSelect}
+              selectedDoctor={selectedDoctor}
+            />
 
             {selectedDoctor && (
               <div className="flex justify-end mt-6">
@@ -195,7 +250,7 @@ export function AppointmentForm() {
                 className="space-y-6"
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
+                  <FormField
                     control={form.control}
                     name="date"
                     render={({ field }) => (
@@ -225,18 +280,27 @@ export function AppointmentForm() {
                             </FormControl>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0" align="start">
-                          <Input
-                            type="date"
-                            value={field.value ? field.value.toISOString().split("T")[0] : ""}
-                            onChange={(e) => {
-                              const selectedDate = e.target.value ? new Date(e.target.value + "T00:00:00Z") : null;
-                              if (selectedDate && !isNaN(selectedDate.getTime())) {
-                                field.onChange(selectedDate);
-                              } else {
-                                field.onChange(null);
+                            <Input
+                              type="date"
+                              value={
+                                field.value
+                                  ? field.value.toISOString().split("T")[0]
+                                  : ""
                               }
-                            }}
-                          />
+                              onChange={(e) => {
+                                const selectedDate = e.target.value
+                                  ? new Date(e.target.value + "T00:00:00Z")
+                                  : null;
+                                if (
+                                  selectedDate &&
+                                  !isNaN(selectedDate.getTime())
+                                ) {
+                                  field.onChange(selectedDate);
+                                } else {
+                                  field.onChange(null);
+                                }
+                              }}
+                            />
                           </PopoverContent>
                         </Popover>
                         <FormDescription>
@@ -284,7 +348,10 @@ export function AppointmentForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Appointment Reason</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select appointment reason" />
@@ -306,7 +373,9 @@ export function AppointmentForm() {
                           <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>
-                      <FormDescription>Select the reason for your appointment</FormDescription>
+                      <FormDescription>
+                        Select the reason for your appointment
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -347,7 +416,11 @@ export function AppointmentForm() {
                     </div>
                   )}
 
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isSubmitting}
+                  >
                     {isSubmitting ? "Booking..." : "Book Appointment"}
                   </Button>
                 </div>
