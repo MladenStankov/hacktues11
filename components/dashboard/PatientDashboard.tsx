@@ -27,7 +27,7 @@ import {
 import {
   getPatientAppointments,
   getPatientInfo,
-  getPatientMedicalExams,
+  // getPatientMedicalExams,
   type AppointmentWithDoctor,
 } from "@/app/actions/patient-actions";
 import {
@@ -35,7 +35,7 @@ import {
   formatGender,
   calculateBMI,
 } from "@/lib/patient-utils";
-import type { MedicalExam } from "@/lib/xml-parser";
+// import type { MedicalExam } from "@/lib/xml-parser";
 import { Patient } from "@prisma/client";
 
 interface PatientDashboardProps {
@@ -54,7 +54,7 @@ export default function PatientInfoDashboard({
     patient: Patient | null;
   } | null>(null);
   const [appointments, setAppointments] = useState<AppointmentWithDoctor[]>([]);
-  const [medicalExams, setMedicalExams] = useState<MedicalExam[]>([]);
+  // const [medicalExams, setMedicalExams] = useState<MedicalExam[]>([]);
   const [loading, setLoading] = useState({
     patient: true,
     appointments: true,
@@ -88,8 +88,8 @@ export default function PatientInfoDashboard({
         setLoading((prev) => ({ ...prev, appointments: false }));
 
         setLoading((prev) => ({ ...prev, exams: true }));
-        const examsData = await getPatientMedicalExams(patientId);
-        setMedicalExams(examsData);
+        // const examsData = await getPatientMedicalExams(patientId);
+        // setMedicalExams(examsData);
         setLoading((prev) => ({ ...prev, exams: false }));
       } catch (err) {
         console.error("Error loading patient data:", err);
@@ -268,10 +268,10 @@ export default function PatientInfoDashboard({
             </TabsContent>
 
             <TabsContent value="exams">
-              <MedicalExamResults
+              {/* <MedicalExamResults
                 exams={medicalExams}
                 loading={loading.exams}
-              />
+              /> */}
             </TabsContent>
           </Tabs>
         </div>
@@ -403,134 +403,134 @@ function AppointmentHistory({
   );
 }
 
-interface MedicalExamResultsProps {
-  exams: MedicalExam[];
-  loading: boolean;
-}
+// interface MedicalExamResultsProps {
+//   exams: MedicalExam[];
+//   loading: boolean;
+// }
 
-function MedicalExamResults({ exams, loading }: MedicalExamResultsProps) {
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Medical Exam Results</CardTitle>
-          <CardDescription>
-            Laboratory tests and diagnostic results
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex h-[400px] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="ml-2">Loading medical exams...</span>
-        </CardContent>
-      </Card>
-    );
-  }
+// function MedicalExamResults({ exams, loading }: MedicalExamResultsProps) {
+//   if (loading) {
+//     return (
+//       <Card>
+//         <CardHeader>
+//           <CardTitle>Medical Exam Results</CardTitle>
+//           <CardDescription>
+//             Laboratory tests and diagnostic results
+//           </CardDescription>
+//         </CardHeader>
+//         <CardContent className="flex h-[400px] items-center justify-center">
+//           <Loader2 className="h-8 w-8 animate-spin text-primary" />
+//           <span className="ml-2">Loading medical exams...</span>
+//         </CardContent>
+//       </Card>
+//     );
+//   }
 
-  if (exams.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Medical Exam Results</CardTitle>
-          <CardDescription>
-            Laboratory tests and diagnostic results
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-center py-8">
-          <p className="text-muted-foreground">
-            No medical exam results found.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
+//   if (exams.length === 0) {
+//     return (
+//       <Card>
+//         <CardHeader>
+//           <CardTitle>Medical Exam Results</CardTitle>
+//           <CardDescription>
+//             Laboratory tests and diagnostic results
+//           </CardDescription>
+//         </CardHeader>
+//         <CardContent className="text-center py-8">
+//           <p className="text-muted-foreground">
+//             No medical exam results found.
+//           </p>
+//         </CardContent>
+//       </Card>
+//     );
+//   }
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Medical Exam Results</CardTitle>
-        <CardDescription>
-          Laboratory tests and diagnostic results
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="max-h-[600px] overflow-y-auto pr-1">
-        <div className="space-y-6">
-          {exams.map((exam) => (
-            <div key={exam.id} className="rounded-md border">
-              <div className="border-b bg-muted/40 px-4 py-2">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">
-                      {new Date(exam.date).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <Badge variant="outline">{exam.type}</Badge>
-                </div>
-              </div>
-              <div className="p-4">
-                <div className="mb-2">
-                  <div className="font-medium">{exam.orderedBy.name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {exam.orderedBy.department}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  {exam.results.length > 0 ? (
-                    <div>
-                      <div className="text-sm font-medium">Results</div>
-                      <div className="mt-2 space-y-2">
-                        {exam.results.map((result, idx) => (
-                          <div
-                            key={result.id || idx}
-                            className="grid grid-cols-4 gap-2 text-sm"
-                          >
-                            <div className="font-medium">{result.name}</div>
-                            <div>{result.value}</div>
-                            <div>
-                              <Badge
-                                variant={
-                                  result.status === "Normal"
-                                    ? "outline"
-                                    : result.status === "Elevated" ||
-                                        result.status === "High" ||
-                                        result.status === "Low" ||
-                                        result.status === "Mild Impairment" ||
-                                        result.status.includes("Abnormal")
-                                      ? "destructive"
-                                      : "outline"
-                                }
-                                className="text-xs"
-                              >
-                                {result.status}
-                              </Badge>
-                            </div>
-                            <div className="text-muted-foreground">
-                              {result.range}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-sm text-muted-foreground">
-                      No detailed results available
-                    </div>
-                  )}
-                  <div>
-                    <div className="text-sm font-medium">Notes</div>
-                    <div className="text-sm">{exam.notes}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Button variant="outline" className="w-full">
-          Download Medical Exam Results
-        </Button>
-      </CardFooter>
-    </Card>
-  );
-}
+//   return (
+//     <Card>
+//       <CardHeader>
+//         <CardTitle>Medical Exam Results</CardTitle>
+//         <CardDescription>
+//           Laboratory tests and diagnostic results
+//         </CardDescription>
+//       </CardHeader>
+//       <CardContent className="max-h-[600px] overflow-y-auto pr-1">
+//         <div className="space-y-6">
+//           {exams.map((exam) => (
+//             <div key={exam.id} className="rounded-md border">
+//               <div className="border-b bg-muted/40 px-4 py-2">
+//                 <div className="flex flex-wrap items-center justify-between gap-2">
+//                   <div className="flex items-center gap-2">
+//                     <Calendar className="h-4 w-4 text-muted-foreground" />
+//                     <span className="font-medium">
+//                       {new Date(exam.date).toLocaleDateString()}
+//                     </span>
+//                   </div>
+//                   <Badge variant="outline">{exam.type}</Badge>
+//                 </div>
+//               </div>
+//               <div className="p-4">
+//                 <div className="mb-2">
+//                   <div className="font-medium">{exam.orderedBy.name}</div>
+//                   <div className="text-sm text-muted-foreground">
+//                     {exam.orderedBy.department}
+//                   </div>
+//                 </div>
+//                 <div className="space-y-2">
+//                   {exam.results.length > 0 ? (
+//                     <div>
+//                       <div className="text-sm font-medium">Results</div>
+//                       <div className="mt-2 space-y-2">
+//                         {exam.results.map((result, idx) => (
+//                           <div
+//                             key={result.id || idx}
+//                             className="grid grid-cols-4 gap-2 text-sm"
+//                           >
+//                             <div className="font-medium">{result.name}</div>
+//                             <div>{result.value}</div>
+//                             <div>
+//                               <Badge
+//                                 variant={
+//                                   result.status === "Normal"
+//                                     ? "outline"
+//                                     : result.status === "Elevated" ||
+//                                         result.status === "High" ||
+//                                         result.status === "Low" ||
+//                                         result.status === "Mild Impairment" ||
+//                                         result.status.includes("Abnormal")
+//                                       ? "destructive"
+//                                       : "outline"
+//                                 }
+//                                 className="text-xs"
+//                               >
+//                                 {result.status}
+//                               </Badge>
+//                             </div>
+//                             <div className="text-muted-foreground">
+//                               {result.range}
+//                             </div>
+//                           </div>
+//                         ))}
+//                       </div>
+//                     </div>
+//                   ) : (
+//                     <div className="text-sm text-muted-foreground">
+//                       No detailed results available
+//                     </div>
+//                   )}
+//                   <div>
+//                     <div className="text-sm font-medium">Notes</div>
+//                     <div className="text-sm">{exam.notes}</div>
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           ))}
+//         </div>
+//       </CardContent>
+//       <CardFooter>
+//         <Button variant="outline" className="w-full">
+//           Download Medical Exam Results
+//         </Button>
+//       </CardFooter>
+//     </Card>
+//   );
+// }
