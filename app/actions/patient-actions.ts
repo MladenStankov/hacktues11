@@ -1,30 +1,58 @@
-"use server";
+"use server"
 
-import prisma from "@/lib/prisma";
-// import { loadPatientMedicalExams, type MedicalExam } from "@/lib/xml-parser"
-// import { createExamFromAppointment } from "@/lib/xml-utils"
-import type { Appointment, Doctor, Patient, User } from "@prisma/client";
+import prisma from "@/lib/prisma"
+import { fetchMultipleAppointmentsXMLs } from "@/lib/xml-loader"
+import { parseMultipleXML, type MedicalExam } from "@/lib/xml-parser"
 
-export type AppointmentWithDoctor = Appointment & {
-  doctor: Doctor & {
+export type AppointmentWithDoctor = {
+  id: string
+  date: Date
+  reason: string
+  completed: boolean
+  notes: string | null
+  xmlFiles: string[]
+  doctor: {
+    id: string
+    specialization: string
     user: {
-      name: string;
-    };
-  };
-};
+      name: string
+    }
+  }
+}
 
-export async function getPatientAppointments(
-  patientId: string | undefined
-): Promise<AppointmentWithDoctor[]> {
+export async function getPatientInfo(userId: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        patient: true,
+      },
+    })
+
+    if (!user) {
+      throw new Error("User not found")
+    }
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+      uniqueCitizenshipNumber: user.uniqueCitizenshipNumber,
+      patient: user.patient,
+    }
+  } catch (error) {
+    console.error("Error fetching patient info:", error)
+    throw error
+  }
+}
+
+export async function getPatientAppointments(patientId: string | undefined): Promise<AppointmentWithDoctor[]> {
   if (!patientId) {
-    console.error("getPatientAppointments called with undefined patientId");
-    throw new Error("Patient ID is required");
+    return []
   }
 
   try {
-    const test = await prisma.appointment.findMany({where: {patientId: patientId}})
-    console.log(test);
-    console.log(patientId)
     const appointments = await prisma.appointment.findMany({
       where: {
         patientId: patientId,
@@ -43,117 +71,56 @@ export async function getPatientAppointments(
       orderBy: {
         date: "desc",
       },
-    });
+    })
 
-    console.log(appointments)
-    return appointments;
+    return appointments
   } catch (error) {
-    console.error("Failed to fetch patient appointments:", error);
-    throw new Error("Failed to fetch patient appointments");
+    console.error("Error fetching patient appointments:", error)
+    throw error
   }
 }
 
-// export async function getPatientMedicalExams(patientId: string): Promise<MedicalExam[]> {
-//   if (!patientId) {
-//     console.error("getPatientMedicalExams called with undefined patientId")
-//     return []
-//   }
-
-//   try {
-//     // Method 1: Get exams from XML files in the medical_records directory
-//     const examsFromDirectory = await loadPatientMedicalExams(patientId)
-
-//     // Method 2: Create basic exam objects from completed appointments
-//     const appointments = await prisma.appointment.findMany({
-//       where: {
-//         patientId: patientId,
-//         completed: true,
-//       },
-//       include: {
-//         doctor: {
-//           include: {
-//             user: {
-//               select: {
-//                 name: true,
-//               },
-//             },
-//           },
-//         },
-//       },
-//       orderBy: {
-//         date: "desc",
-//       },
-//     })
-
-//     // Create exam objects from appointments
-//     const examsFromAppointments = appointments.map((appointment) => createExamFromAppointment(appointment))
-
-//     // Combine both sources of exams
-//     const allExams = [...examsFromDirectory]
-
-//     // Add exams from appointments if they don't already exist in the directory exams
-//     // (avoid duplicates by checking if an exam with the same appointmentId already exists)
-//     examsFromAppointments.forEach((examFromAppointment) => {
-//       if (!allExams.some((exam) => exam.appointmentId === examFromAppointment.appointmentId)) {
-//         allExams.push(examFromAppointment)
-//       }
-//     })
-
-//     // Sort by date, newest first
-//     return allExams.sort((a, b) => {
-//       return new Date(b.date).getTime() - new Date(a.date).getTime()
-//     })
-//   } catch (error) {
-//     console.error("Failed to fetch patient medical exams:", error)
-//     return []
-//   }
-// }
-
-export type PatientWithUser = Patient & {
-  user: User;
-};
-
-// Update the getPatientInfo function to validate patientId
-export async function getPatientInfo(patientId: string) {
-  // Validate patientId
+export async function getPatientMedicalExams(patientId: string | undefined): Promise<MedicalExam[]> {
   if (!patientId) {
-    console.error("getPatientInfo called with undefined patientId");
-    throw new Error("Patient ID is required");
+    return []
   }
 
   try {
-    console.log(`Attempting to fetch patient with ID: ${patientId}`);
+    // First get the patient record
+    const patient = await prisma.patient.findUnique({
+      where: { userId: patientId },
+    })
 
-    // First check if the patient exists
-    const patient = await prisma.user.findUnique({
+    if (!patient) {
+      throw new Error("Patient not found")
+    }
+
+    // Get all appointments for this patient
+    const appointments = await prisma.appointment.findMany({
       where: {
-        id: patientId, // This was undefined before
+        patientId: patient.id,
+        completed: true, // Only completed appointments have medical exams
+        xmlFiles: { isEmpty: false }, // Only appointments with XML files
       },
-      include: { patient: true },
-    });
+      select: {
+        id: true,
+        xmlFiles: true,
+      },
+    })
 
-    console.log(patient);
+    // Get appointment IDs
+    const appointmentIds = appointments.map((appointment) => appointment.id)
 
-    if (!patient) {
-      console.error(`Patient with ID ${patientId} not found`);
-      throw new Error(`Patient with ID ${patientId} not found`);
-    }
+    // Fetch XML files for these appointments
+    const xmlContents = await fetchMultipleAppointmentsXMLs(appointmentIds)
 
-    if (!patient) {
-      console.error(
-        `Patient with ID ${patientId} exists but could not be fetched with user data`
-      );
-      throw new Error("Patient data could not be retrieved");
-    }
+    // Parse XML contents into MedicalExam objects
+    const medicalExams = await parseMultipleXML(xmlContents)
 
-    console.log(`Successfully fetched patient: ${patient.id}`);
-    return patient;
+    return medicalExams
   } catch (error) {
-    console.error("Failed to fetch patient info:", error);
-    if (error instanceof Error) {
-      throw new Error(`Failed to fetch patient info: ${error.message}`);
-    } else {
-      throw new Error("Failed to fetch patient info: Unknown error");
-    }
+    console.error("Error fetching patient medical exams:", error)
+    throw error
   }
 }
+

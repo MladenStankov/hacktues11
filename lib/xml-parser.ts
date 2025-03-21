@@ -1,124 +1,170 @@
-// "use server"
+import { parseStringPromise } from "xml2js"
 
-// import { parseStringPromise } from "xml2js"
-// import { getXMLFiles } from "./xml-loader"
+export interface MedicalResult {
+  id?: string
+  name: string
+  value: string
+  unit: string
+  status: string
+  range: string
+  isAbnormal: boolean
+}
 
-// export interface MedicalExamResult {
-//   id: string
-//   name: string
-//   value: string
-//   status: string
-//   range: string
-// }
+export interface MedicalExam {
+  id: string
+  date: Date
+  type: string
+  orderedBy: {
+    name: string
+    department: string
+  }
+  results: MedicalResult[]
+  notes: string
+  patientName?: string
+  patientId?: string
+}
 
-// export interface MedicalExam {
-//   id: string
-//   date: string
-//   type: string
-//   orderedBy: {
-//     name: string
-//     department: string
-//   }
-//   results: MedicalExamResult[]
-//   notes: string
-//   patientId?: string
-//   appointmentId?: string
-// }
+// Helper function to determine if a result is abnormal based on reference range
+function checkIfAbnormal(result: string, referenceRange: string): { isAbnormal: boolean; status: string } {
+  if (!referenceRange || referenceRange.trim() === "") {
+    return { isAbnormal: false, status: "No Range" }
+  }
 
-// export async function parseXmlString(xmlContent: string): Promise<MedicalExam | null> {
-//   try {
+  const numericResult = Number.parseFloat(result)
+  if (isNaN(numericResult)) {
+    return { isAbnormal: false, status: "Normal" }
+  }
 
-//     const result = await parseStringPromise(xmlContent, {
-//       explicitArray: false,
-//       mergeAttrs: true,
-//     })
+  // Handle different reference range formats
+  if (referenceRange.includes("-")) {
+    // Format: "min - max"
+    const [minStr, maxStr] = referenceRange.split("-").map((s) => s.trim())
+    const min = Number.parseFloat(minStr)
+    const max = Number.parseFloat(maxStr)
 
-//     const exam = result.medicalExam
+    if (!isNaN(min) && !isNaN(max)) {
+      if (numericResult < min) {
+        return { isAbnormal: true, status: "Low" }
+      } else if (numericResult > max) {
+        return { isAbnormal: true, status: "High" }
+      }
+    }
+  } else if (referenceRange.toLowerCase().includes("up to")) {
+    // Format: "Up to X"
+    const maxStr = referenceRange.toLowerCase().replace("up to", "").trim()
+    const max = Number.parseFloat(maxStr)
 
-//     if (!exam) {
-//       console.error("Invalid XML format: missing medicalExam root element")
-//       return null
-//     }
+    if (!isNaN(max) && numericResult > max) {
+      return { isAbnormal: true, status: "High" }
+    }
+  }
 
-//     let results: MedicalExamResult[] = []
+  return { isAbnormal: false, status: "Normal" }
+}
 
-//     if (exam.results && exam.results.result) {
+// Parse a single XML string into a MedicalExam object
+export async function parseXML(xmlString: string): Promise<MedicalExam | null> {
+  try {
+    if (!xmlString || xmlString.trim() === "") {
+      return null
+    }
 
-//       const resultItems = Array.isArray(exam.results.result) ? exam.results.result : [exam.results.result]
+    const result = await parseStringPromise(xmlString, {
+      explicitArray: false,
+      mergeAttrs: true,
+    })
 
-//       results = resultItems.map((item: any, index: number) => ({
-//         id: item.id || `result-${index}`,
-//         name: item.name || "Unknown Test",
-//         value: item.value || "N/A",
-//         status: item.status || "Unknown",
-//         range: item.range || "N/A",
-//       }))
-//     }
+    if (!result.medical_report) {
+      console.warn("Invalid XML format: missing medical_report root element")
+      return null
+    }
 
-//     return {
-//       id: exam.id || `exam-${Date.now()}`,
-//       date: exam.date || new Date().toISOString(),
-//       type: exam.type || "General Examination",
-//       orderedBy: {
-//         name: exam.orderedBy?.name || "Unknown Doctor",
-//         department: exam.orderedBy?.department || "Unknown Department",
-//       },
-//       results,
-//       notes: exam.notes || "",
-//       patientId: exam.patientId || undefined,
-//       appointmentId: exam.appointmentId || undefined,
-//     }
-//   } catch (error) {
-//     console.error("Error parsing XML string:", error)
-//     return null
-//   }
-// }
+    const medicalReport = result.medical_report
+    const patient = medicalReport.patient || {}
+    const hematology = medicalReport.hematology?.test || []
+    const biochemistry = medicalReport.biochemistry?.test || []
 
-// export async function parseXmlFile(xmlFilePath: string): Promise<MedicalExam | null> {
-//   try {
-//     const fs = require("fs")
-//     const path = require("path")
+    // Convert to arrays if they're single objects
+    const hematologyTests = Array.isArray(hematology) ? hematology : [hematology]
+    const biochemistryTests = Array.isArray(biochemistry) ? biochemistry : [biochemistry]
 
-//     const xmlContent = fs.readFileSync(path.resolve(process.cwd(), xmlFilePath), "utf-8")
+    // Combine all tests
+    const allTests = [...hematologyTests, ...biochemistryTests]
 
-//     return parseXmlString(xmlContent)
-//   } catch (error) {
-//     console.error(`Error parsing XML file ${xmlFilePath}:`, error)
-//     return null
-//   }
-// }
+    // Extract results and convert to our format
+    const results: MedicalResult[] = []
 
-// export async function loadAllMedicalExams(): Promise<MedicalExam[]> {
-//   try {
+    allTests.forEach((test: any) => {
+      if (test && test.name) {
+        const { isAbnormal, status } = checkIfAbnormal(test.result || "0", test.reference_range || "")
 
-//     const xmlFiles = await getXMLFiles()
+        results.push({
+          name: test.name,
+          value: test.result || "N/A",
+          unit: test.unit || "",
+          status: status,
+          range: test.reference_range || "N/A",
+          isAbnormal: isAbnormal,
+        })
+      }
+    })
 
-//     const examPromises = xmlFiles.map((xmlContent) => parseXmlString(xmlContent))
+    // Create a unique ID based on patient info and date
+    const examId = `exam-${patient.egn || ""}-${patient.date_of_measurement || Date.now()}`
+    const examDate = patient.date_of_measurement ? new Date(patient.date_of_measurement) : new Date()
 
-//     const exams = (await Promise.all(examPromises)).filter(Boolean) as MedicalExam[]
+    // Determine exam type based on sections present
+    let examType = "General Examination"
+    if (hematologyTests.length > 0 && biochemistryTests.length > 0) {
+      examType = "Hematology & Biochemistry"
+    } else if (hematologyTests.length > 0) {
+      examType = "Hematology"
+    } else if (biochemistryTests.length > 0) {
+      examType = "Biochemistry"
+    }
 
-//     return exams
-//   } catch (error) {
-//     console.error("Error loading medical exams:", error)
-//     return []
-//   }
-// }
+    // Extract doctor info
+    const doctorInfo = patient.treating_doctor || ""
+    let doctorName = doctorInfo
+    let department = ""
 
-// export async function loadPatientMedicalExams(patientId: string): Promise<MedicalExam[]> {
-//   try {
+    // Try to parse department if format is "Dr. Name - Department"
+    if (doctorInfo.includes("-")) {
+      const parts = doctorInfo.split("-").map((p: string) => p.trim())
+      doctorName = parts[0]
+      department = parts[1] || ""
+    }
 
-//     const allExams = await loadAllMedicalExams()
+    return {
+      id: examId,
+      date: examDate,
+      type: examType,
+      orderedBy: {
+        name: doctorName,
+        department: department,
+      },
+      results: results,
+      notes: "Medical report generated from laboratory tests.",
+      patientName: patient.name,
+      patientId: patient.egn,
+    }
+  } catch (error) {
+    console.error("Error parsing XML:", error)
+    return null
+  }
+}
 
-//     return allExams.filter((exam) => {
+// Parse multiple XML strings into MedicalExam objects
+export async function parseMultipleXML(xmlStrings: string[]): Promise<MedicalExam[]> {
+  const exams: MedicalExam[] = []
 
-//       if (exam.patientId) {
-//         return exam.patientId === patientId
-//       }
+  for (const xml of xmlStrings) {
+    const exam = await parseXML(xml)
+    if (exam) {
+      exams.push(exam)
+    }
+  }
 
-//       return false
-//     })
-//   } catch (error) {
-//     console.error(`Error loading medical exams for patient ${patientId}:`, error)
-//     return []
-//   }
-// }
+  return exams
+}
+
