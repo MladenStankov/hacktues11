@@ -167,7 +167,7 @@ model Appointment {
   reason    String
   completed Boolean  @default(false)
   notes     String? // after completion
-  xmlFileLocation String? // copy of the 
+  xmlFiles String[] // copy of the 
 
   patientId String  @unique
   patient   Patient @relation(fields: [patientId], references: [id])
