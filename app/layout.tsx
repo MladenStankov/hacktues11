@@ -47,6 +47,14 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "CareLink",
     locale: "bg_BG",
+    images: [
+      {
+        url: "https://carelink.bg/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Your image alt text",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
