@@ -31,7 +31,7 @@ export default function AuthButtons({ session }: { session: Session | null }) {
             size="sm"
             className="font-semibold"
           >
-            Sign In
+            Sign Up
           </Button>
         </Link>
       </div>

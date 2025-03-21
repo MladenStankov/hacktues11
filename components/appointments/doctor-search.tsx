@@ -156,7 +156,6 @@ export function DoctorSearch({ onDoctorSelect, selectedDoctor }: DoctorSearchPro
                 <SelectValue placeholder="Specialty" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Specialties</SelectItem>
                 {specialties.map((specialty) => (
                   <SelectItem key={specialty} value={specialty}>
                     {specialty}
@@ -172,7 +171,6 @@ export function DoctorSearch({ onDoctorSelect, selectedDoctor }: DoctorSearchPro
                 <SelectValue placeholder="Hospital" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Hospitals</SelectItem>
                 {hospitals.map((hospital) => (
                   <SelectItem key={hospital} value={hospital}>
                     {hospital}
