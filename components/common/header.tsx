@@ -1,5 +1,5 @@
 import React from "react";
-import { Heart } from "lucide-react";
+import { HeartHandshake } from "lucide-react";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -11,10 +11,10 @@ export default async function Header() {
   });
 
   return (
-    <div className="bg-linear-65 from-primary/80 to-primary/60 shadow-md text-amber-50">
+    <div className="bg-linear-65 from-primary to-primary/80 backdrop-blur-xl  shadow-md text-amber-50 fixed top-0 w-full z-10">
       <div className="container flex h-16 items-center justify-between p-4">
         <div className="flex items-center gap-2">
-          <Heart className="h-6 w-6 text-primary" />
+          <HeartHandshake className="h-6 w-6 text-secondary" />
           <Link href="/">
             <span className="text-xl font-bold">CareLink</span>
           </Link>
@@ -57,10 +57,10 @@ export default async function Header() {
                 Appointments
               </Link>
               <Link
-                href="/doctors"
+                href="/ai-suggestions"
                 className="text-lg font-medium  hover:underline underline-offset-4"
               >
-                Doctors
+                AI Suggestions
               </Link>
             </>
           )}
