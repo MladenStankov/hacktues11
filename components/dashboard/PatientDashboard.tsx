@@ -25,7 +25,7 @@ import {
   Loader2,
 } from "lucide-react";
 import {
-  getPatientAppointments,
+  // getPatientAppointments,
   getPatientInfo,
   // getPatientMedicalExams,
   type AppointmentWithDoctor,
@@ -83,8 +83,8 @@ export default function PatientInfoDashboard({
         setLoading((prev) => ({ ...prev, patient: false }));
 
         setLoading((prev) => ({ ...prev, appointments: true }));
-        const appointmentsData = await getPatientAppointments(patientId);
-        setAppointments(appointmentsData);
+        // const appointmentsData = await getPatientAppointments(patientId);
+        setAppointments([]);
         setLoading((prev) => ({ ...prev, appointments: false }));
 
         setLoading((prev) => ({ ...prev, exams: true }));
