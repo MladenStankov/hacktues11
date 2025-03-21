@@ -17,7 +17,7 @@ export default function page() {
             <UploadButton
             className='bg-primary text-white'
                 endpoint="xmlUploader"
-                onClientUploadComplete={(res) => {
+                onClientUploadComplete={(res: any) => {
                     console.log("Files: ", res);
                     alert("Upload Completed");
                 }}
