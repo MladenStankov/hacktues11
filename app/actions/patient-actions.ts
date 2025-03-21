@@ -14,7 +14,7 @@ export type AppointmentWithDoctor = Appointment & {
 };
 
 export async function getPatientAppointments(
-  patientId: string
+  patientId: string | undefined
 ): Promise<AppointmentWithDoctor[]> {
   if (!patientId) {
     console.error("getPatientAppointments called with undefined patientId");
@@ -22,6 +22,9 @@ export async function getPatientAppointments(
   }
 
   try {
+    const test = await prisma.appointment.findMany({where: {patientId: patientId}})
+    console.log(test);
+    console.log(patientId)
     const appointments = await prisma.appointment.findMany({
       where: {
         patientId: patientId,
@@ -42,6 +45,7 @@ export async function getPatientAppointments(
       },
     });
 
+    console.log(appointments)
     return appointments;
   } catch (error) {
     console.error("Failed to fetch patient appointments:", error);

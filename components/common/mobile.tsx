@@ -40,19 +40,19 @@ export default function MobileNavigation({ session }: IProps) {
                             <>
                                 <Link
                                     href="/#features"
-                                    className="text-sm font-medium hover:text-primary"
+                                    className="text-lg font-medium hover:text-primary"
                                 >
                                     Features
                                 </Link>
                                 <Link
                                     href="/#about"
-                                    className="text-sm font-medium hover:text-primary"
+                                    className="text-lg font-medium hover:text-primary"
                                 >
                                     About Us
                                 </Link>
                                 <Link
                                     href="/#contact"
-                                    className="text-sm font-medium hover:text-primary"
+                                    className="text-lg font-medium hover:text-primary"
                                 >
                                     Contact
                                 </Link>
@@ -61,19 +61,19 @@ export default function MobileNavigation({ session }: IProps) {
                             <>
                                 <Link
                                     href="/dashboard"
-                                    className="text-sm font-medium hover:text-primary"
+                                    className="text-lg font-medium hover:text-primary"
                                 >
                                     Dashboard
                                 </Link>
                                 <Link
                                     href="/appointments"
-                                    className="text-sm font-medium hover:text-primary"
+                                    className="text-lg font-medium hover:text-primary"
                                 >
                                     Appointments
                                 </Link>
                                 <Link
                                     href="/doctors"
-                                    className="text-sm font-medium hover:text-primary"
+                                    className="text-lg font-medium hover:text-primary"
                                 >
                                     Doctors
                                 </Link>
