@@ -8,20 +8,12 @@ const authRoutes = [
   "/sign-up/doctor",
   "/sign-up/patient",
 ];
-const protectedRoutes = ["/dashboard", "/appointments"];
-const adminRoutes = [
-  "/admin/dashboard",
-  "/admin/products",
-  "/admin/products/create",
-  "/admin/orders",
-  "/admin/users",
-];
+const protectedRoutes = ["/dashboard", "/appointments", "/ai-suggestions"];
 
 export default async function authMiddleware(request: NextRequest) {
   const pathName = request.nextUrl.pathname;
   const isAuthRoute = authRoutes.includes(pathName);
   const isProtectedRoute = protectedRoutes.includes(pathName);
-  const isAdminRoute = adminRoutes.includes(pathName);
 
   const { data: session } = await betterFetch<Session>(
     "/api/auth/get-session",
@@ -35,9 +27,6 @@ export default async function authMiddleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
   if (session && isAuthRoute) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-  if ((session || !session) && isAdminRoute && session?.user.role !== "admin") {
     return NextResponse.redirect(new URL("/", request.url));
   }
 }
