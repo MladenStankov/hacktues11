@@ -40,19 +40,19 @@ export default function MobileNavigation({ session }: IProps) {
                             <>
                                 <Link
                                     href="/#features"
-                                    className="text-lg font-medium hover:text-primary"
+                                    className="text-lg font-medium  hover:underline underline-offset-4"
                                 >
                                     Features
                                 </Link>
-                                <Link
+                                <Link   
                                     href="/#about"
-                                    className="text-lg font-medium hover:text-primary"
+                                    className="text-lg font-medium  hover:underline underline-offset-4"
                                 >
                                     About Us
                                 </Link>
                                 <Link
                                     href="/#contact"
-                                    className="text-lg font-medium hover:text-primary"
+                                    className="text-lg font-medium  hover:underline underline-offset-4"
                                 >
                                     Contact
                                 </Link>
@@ -61,19 +61,19 @@ export default function MobileNavigation({ session }: IProps) {
                             <>
                                 <Link
                                     href="/dashboard"
-                                    className="text-lg font-medium hover:text-primary"
+                                    className="text-lg font-medium  hover:underline underline-offset-4"
                                 >
                                     Dashboard
                                 </Link>
                                 <Link
                                     href="/appointments"
-                                    className="text-lg font-medium hover:text-primary"
+                                    className="text-lg font-medium  hover:underline underline-offset-4"
                                 >
                                     Appointments
                                 </Link>
                                 <Link
                                     href="/doctors"
-                                    className="text-lg font-medium hover:text-primary"
+                                    className="text-lg font-medium  hover:underline underline-offset-4"
                                 >
                                     Doctors
                                 </Link>
