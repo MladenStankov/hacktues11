@@ -178,7 +178,7 @@ model Appointment {
   @@map("appointment")
 }
 
-model AiOpinion {
+model AiSuggestion {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
   text      String

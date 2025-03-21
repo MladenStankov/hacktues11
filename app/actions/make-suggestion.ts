@@ -49,4 +49,5 @@ export async function makeSuggestion(appointmentIds: string[]) {
 
     const data = await response.json()
     console.log(data.choices?.[0]?.message?.content || 'No response received.')
+    return data.choices?.[0]?.message?.content || 'No response received.'
 }
