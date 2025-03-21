@@ -68,3 +68,17 @@ export async function createDoctorMetadata(
     throw new Error("Failed to create doctor metadata");
   }
 }
+
+export async function getUserType(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: {
+      patient: true,
+      doctor: true,
+    },
+  });
+  if (user?.patient) {
+    return "PATIENT";
+  }
+  return "DOCTOR";
+}
