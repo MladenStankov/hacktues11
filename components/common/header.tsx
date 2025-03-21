@@ -11,7 +11,7 @@ export default async function Header() {
   });
 
   return (
-    <div className="bg-gray-100 shadow-md">
+    <div className="bg-linear-65 from-primary/80 to-primary/60 shadow-md text-amber-50">
       <div className="container flex h-16 items-center justify-between p-4">
         <div className="flex items-center gap-2">
           <Heart className="h-6 w-6 text-primary" />
@@ -25,19 +25,19 @@ export default async function Header() {
             <>
               <Link
                 href="/#features"
-                className="text-sm font-medium hover:text-primary"
+                className="text-lg font-medium hover:text-primary"
               >
                 Features
               </Link>
               <Link
                 href="/#about"
-                className="text-sm font-medium hover:text-primary"
+                className="text-lg font-medium hover:text-primary"
               >
                 About Us
               </Link>
               <Link
                 href="/#contact"
-                className="text-sm font-medium hover:text-primary"
+                className="text-lg font-medium hover:text-primary"
               >
                 Contact
               </Link>
@@ -46,19 +46,19 @@ export default async function Header() {
             <>
               <Link
                 href="/dashboard"
-                className="text-sm font-medium hover:text-primary"
+                className="text-lg font-medium hover:text-primary"
               >
                 Dashboard
               </Link>
               <Link
                 href="/appointments"
-                className="text-sm font-medium hover:text-primary"
+                className="text-lg font-medium hover:text-primary"
               >
                 Appointments
               </Link>
               <Link
                 href="/doctors"
-                className="text-sm font-medium hover:text-primary"
+                className="text-lg font-medium hover:text-primary"
               >
                 Doctors
               </Link>

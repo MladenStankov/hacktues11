@@ -27,13 +27,7 @@ import { UploadButton } from '@/app/actions/uploadthing'
 
 export default function page() {
     const handleClick = async () => {
-//        const session = await auth.api.getSession({
-//            headers: await headers(),
-//          });
-//        const patientId = session?.user?.id;
-//        const appointments = await getPatientAppointments(patientId)
-//        console.log(appointments)
-        await makeSuggestion([""])
+        await makeSuggestion(["204b9702-cbe1-46c2-a9d5-a341584745c5"])
     }
 
     // type Doctor = z.infer<typeof DoctorSchema>;

@@ -40,7 +40,7 @@ export default function AuthButtons({ session }: { session: Session | null }) {
   return (
     <Popover modal={true}>
       <PopoverTrigger className="flex items-center gap-2">
-        <p>{session.user.name}</p>
+        <p className="text-lg font-semibold">{session.user.name}</p>
         <Avatar>
           <AvatarImage
             src={session.user.image ?? "/default_user_image.jpg"}
