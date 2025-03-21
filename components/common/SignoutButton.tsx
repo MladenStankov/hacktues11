@@ -25,8 +25,8 @@ export default function SignoutButton() {
   return (
     <Button
       onClick={handleSignOut}
-      variant="destructive"
-      className="w-full font-semibold"
+      variant="outline"
+      className="w-full"
       disabled={isLoading}
       type="button"
     >

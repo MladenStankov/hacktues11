@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react"
 import { CalendarIcon } from "lucide-react"
@@ -51,7 +51,7 @@ export function AppointmentForm() {
       reason: "",
       notes: "",
     },
-  })
+  });
 
   // Clear messages after 5 seconds
   useEffect(() => {
@@ -113,30 +113,45 @@ export function AppointmentForm() {
   
 
   function handleDoctorSelect(doctor: Doctor & { user: User }) {
-    setSelectedDoctor(doctor)
+    setSelectedDoctor(doctor);
   }
 
   function handleContinueToBooking() {
     if (selectedDoctor) {
-      setActiveTab("book-appointment")
+      setActiveTab("book-appointment");
     }
   }
 
   if (isSubmitted && appointmentDetails) {
-    return <AppointmentConfirmation appointmentDetails={appointmentDetails} doctor={selectedDoctor} />
+    return (
+      <AppointmentConfirmation
+        appointmentDetails={appointmentDetails}
+        doctor={selectedDoctor}
+      />
+    );
   }
 
   return (
     <Card className="max-w-3xl mx-auto">
-      <CardHeader>
-        <CardTitle>Schedule an Appointment</CardTitle>
-        <CardDescription>Find a doctor and book your appointment in two simple steps.</CardDescription>
-      </CardHeader>
+      <PageHeader
+        title="Book an Appointment"
+        description="Schedule a visit with a healthcare professional."
+      />
+
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="find-doctor">1. Find a Doctor</TabsTrigger>
-            <TabsTrigger value="book-appointment" disabled={!selectedDoctor}>
+            <TabsTrigger
+              value="find-doctor"
+              className="data-[state=active]:bg-primary data-[state=active]:text-white"
+            >
+              1. Find a Doctor
+            </TabsTrigger>
+            <TabsTrigger
+              value="book-appointment"
+              disabled={!selectedDoctor}
+              className="data-[state=active]:bg-primary data-[state=active]:text-white"
+            >
               2. Book Appointment
             </TabsTrigger>
           </TabsList>
@@ -146,7 +161,9 @@ export function AppointmentForm() {
 
             {selectedDoctor && (
               <div className="flex justify-end mt-6">
-                <Button onClick={handleContinueToBooking}>Continue to Booking</Button>
+                <Button onClick={handleContinueToBooking}>
+                  Continue to Booking
+                </Button>
               </div>
             )}
           </TabsContent>
@@ -156,17 +173,27 @@ export function AppointmentForm() {
               <div className="mb-6 p-4 bg-muted rounded-lg flex items-start gap-4">
                 <div>
                   <h3 className="font-medium">{selectedDoctor.user.name}</h3>
-                  <p className="text-sm text-muted-foreground">{selectedDoctor.specialization}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedDoctor.specialization}
+                  </p>
                   <p className="text-sm">{selectedDoctor.hospital}</p>
                 </div>
-                <Button variant="outline" size="sm" className="ml-auto" onClick={() => setActiveTab("find-doctor")}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="ml-auto"
+                  onClick={() => setActiveTab("find-doctor")}
+                >
                   Change
                 </Button>
               </div>
             )}
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                     control={form.control}
@@ -179,7 +206,10 @@ export function AppointmentForm() {
                             <FormControl>
                               <Button
                                 variant={"outline"}
-                                className={cn("pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                                className={cn(
+                                  "pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
                               >
                                 {field.value ? (
                                   field.value.toLocaleDateString("en-US", {
@@ -209,7 +239,9 @@ export function AppointmentForm() {
                           />
                           </PopoverContent>
                         </Popover>
-                        <FormDescription>Select a weekday for your appointment.</FormDescription>
+                        <FormDescription>
+                          Select a weekday for your appointment.
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -231,10 +263,15 @@ export function AppointmentForm() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <TimeSlotPicker selectedDate={form.watch("date")} onTimeSelected={field.onChange} />
+                            <TimeSlotPicker
+                              selectedDate={form.watch("date")}
+                              onTimeSelected={field.onChange}
+                            />
                           </SelectContent>
                         </Select>
-                        <FormDescription>Choose an available time slot.</FormDescription>
+                        <FormDescription>
+                          Choose an available time slot.
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -254,10 +291,18 @@ export function AppointmentForm() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="general-checkup">General Check-up</SelectItem>
-                          <SelectItem value="follow-up">Follow-up Visit</SelectItem>
-                          <SelectItem value="consultation">Consultation</SelectItem>
-                          <SelectItem value="vaccination">Vaccination</SelectItem>
+                          <SelectItem value="general-checkup">
+                            General Check-up
+                          </SelectItem>
+                          <SelectItem value="follow-up">
+                            Follow-up Visit
+                          </SelectItem>
+                          <SelectItem value="consultation">
+                            Consultation
+                          </SelectItem>
+                          <SelectItem value="vaccination">
+                            Vaccination
+                          </SelectItem>
                           <SelectItem value="other">Other</SelectItem>
                         </SelectContent>
                       </Select>
@@ -281,7 +326,8 @@ export function AppointmentForm() {
                         />
                       </FormControl>
                       <FormDescription>
-                        Optional: Include any symptoms or concerns you&apos;d like to discuss.
+                        Optional: Include any symptoms or concerns you&apos;d
+                        like to discuss.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -311,5 +357,5 @@ export function AppointmentForm() {
         </Tabs>
       </CardContent>
     </Card>
-  )
+  );
 }

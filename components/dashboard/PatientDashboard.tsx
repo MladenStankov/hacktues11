@@ -44,7 +44,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
+import SignoutButton from "../common/SignoutButton";
 interface PatientDashboardProps {
   patientId: string | undefined;
 }
@@ -237,10 +237,11 @@ export default function PatientInfoDashboard({
             </div>
 
             <div className="flex flex-col gap-2">
-              <Button variant="outline" className="w-full">
+              <Button variant="default" className="w-full">
                 <FileText className="mr-2 h-4 w-4" />
                 Full Medical Record
               </Button>
+              <SignoutButton />
             </div>
           </CardContent>
         </Card>
@@ -259,11 +260,17 @@ export default function PatientInfoDashboard({
 
           <Tabs defaultValue="appointments" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="appointments">
+              <TabsTrigger
+                value="appointments"
+                className="data-[state=active]:bg-primary data-[state=active]:text-white"
+              >
                 <Calendar className="mr-2 h-4 w-4" />
                 Appointment History
               </TabsTrigger>
-              <TabsTrigger value="exams">
+              <TabsTrigger
+                value="exams"
+                className="data-[state=active]:bg-primary data-[state=active]:text-white"
+              >
                 <ClipboardList className="mr-2 h-4 w-4" />
                 Medical Exam Results
               </TabsTrigger>
