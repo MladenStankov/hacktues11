@@ -129,114 +129,117 @@ export default function PatientSignUpForm() {
 
   if (isSubmitted) {
     return (
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader>
-          <CardTitle className="text-center">Registration Complete</CardTitle>
-          <CardDescription className="text-center">
-            Your patient account has been successfully created
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col items-center justify-center py-10">
-          <div className="rounded-full bg-green-100 p-3 mb-4">
-            <CheckCircle2 className="h-10 w-10 text-green-600" />
-          </div>
-          <p className="text-center">
-            Thank you for registering! You can verify your email address by
-            checking your email
-          </p>
-        </CardContent>
-        <CardFooter>
-          <Button
-            className="w-full"
-            onClick={() => (window.location.href = "/login")}
-          >
-            Go to Login
-          </Button>
-        </CardFooter>
-      </Card>
+      <div className='flex items-center justify-center h-screen w-full bg-linear-65 from-primary to-primary/40'>
+        <Card className="w-full max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle className="text-center">Registration Complete</CardTitle>
+            <CardDescription className="text-center">
+              Your patient account has been successfully created
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center justify-center py-10">
+            <div className="rounded-full bg-green-100 p-3 mb-4">
+              <CheckCircle2 className="h-10 w-10 text-green-600" />
+            </div>
+            <p className="text-center">
+              Thank you for registering! You can verify your email address by
+              checking your email
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Button
+              className="w-full"
+              onClick={() => (window.location.href = "/sign-in")}
+            >
+              Go to Sign In
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full">
-        <Card className="w-full max-w-md mx-auto">
-          <CardHeader>
-            <CardTitle>Create Patient Account</CardTitle>
-            <CardDescription>
-              Complete the form below to register. Step {step} of 4.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex justify-between mb-8">
-              {[1, 2, 3, 4].map((stepNumber) => (
-                <div key={stepNumber} className="flex flex-col items-center">
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      stepNumber === step
+    <div className='flex items-center justify-center h-screen w-full bg-linear-65 from-primary to-primary/40'>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full">
+          <Card className="w-full max-w-md mx-auto">
+            <CardHeader>
+              <CardTitle>Create Patient Account</CardTitle>
+              <CardDescription>
+                Complete the form below to register. Step {step} of 4.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex justify-between mb-8">
+                {[1, 2, 3, 4].map((stepNumber) => (
+                  <div key={stepNumber} className="flex flex-col items-center">
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center ${stepNumber === step
                         ? "bg-primary text-primary-foreground"
                         : stepNumber < step
                           ? "bg-primary/20 text-primary"
                           : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {stepNumber < step ? (
-                      <CheckCircle2 className="h-5 w-5" />
-                    ) : (
-                      stepNumber
-                    )}
+                        }`}
+                    >
+                      {stepNumber < step ? (
+                        <CheckCircle2 className="h-5 w-5" />
+                      ) : (
+                        stepNumber
+                      )}
+                    </div>
+                    <div className="text-xs mt-1">
+                      {stepNumber === 1
+                        ? "Names"
+                        : stepNumber === 2
+                          ? "Details"
+                          : stepNumber === 3
+                            ? "Security"
+                            : "Review"}
+                    </div>
                   </div>
-                  <div className="text-xs mt-1">
-                    {stepNumber === 1
-                      ? "Names"
-                      : stepNumber === 2
-                        ? "Details"
-                        : stepNumber === 3
-                          ? "Security"
-                          : "Review"}
-                  </div>
-                </div>
-              ))}
-            </div>
-            {renderStepContent()}
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            {step > 1 && (
-              <Button type="button" variant="outline" onClick={handlePrevious}>
-                <ChevronLeft className="mr-2 h-4 w-4" /> Back
-              </Button>
-            )}
-            {step < 4 ? (
-              <Button
-                type="button"
-                className={step === 1 ? "ml-auto" : ""}
-                onClick={handleNext}
-              >
-                Next <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-            ) : (
-              <Button
-                type="submit"
-                disabled={isLoading}
-                onClick={() => handleSubmit(form.getValues())}
-              >
-                {isLoading ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  "Complete Registration"
-                )}
-              </Button>
-            )}
-          </CardFooter>
-          <p className="text-sm text-muted-foreground text-center pb-4">
-            Already have an account?{" "}
-            <Link href="/sign-in" className="text-primary hover:underline">
-              Sign in
-            </Link>
-          </p>
-        </Card>
-      </form>
-    </Form>
+                ))}
+              </div>
+              {renderStepContent()}
+            </CardContent>
+            <CardFooter className="flex justify-between">
+              {step > 1 && (
+                <Button type="button" variant="outline" onClick={handlePrevious}>
+                  <ChevronLeft className="mr-2 h-4 w-4" /> Back
+                </Button>
+              )}
+              {step < 4 ? (
+                <Button
+                  type="button"
+                  className={step === 1 ? "ml-auto" : ""}
+                  onClick={handleNext}
+                >
+                  Next <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  onClick={() => handleSubmit(form.getValues())}
+                >
+                  {isLoading ? (
+                    <Loader2 className="animate-spin" />
+                  ) : (
+                    "Complete Registration"
+                  )}
+                </Button>
+              )}
+            </CardFooter>
+            <p className="text-sm text-muted-foreground text-center pb-4">
+              Already have an account?{" "}
+              <Link href="/sign-in" className="text-primary hover:underline">
+                Sign in
+              </Link>
+            </p>
+          </Card>
+        </form>
+      </Form>
+    </div>
   );
 }
 
