@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CalendarIcon, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Appointment, User } from "@prisma/client";
+import { Appointment } from "@prisma/client";
 import { getDoctor, findAllApointments } from "@/app/actions/utility";
 
 interface AppointmentFilterProps {

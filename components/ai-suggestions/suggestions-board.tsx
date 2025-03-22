@@ -4,7 +4,7 @@ import { useState } from "react"
 import { PreviousAssessments } from "@/components/ai-suggestions/previous-assesment"
 import { AppointmentFilter } from "@/components/ai-suggestions/appointment-filter"
 import { SuggestionDisplay } from "@/components/ai-suggestions/suggestion-display"
-import { Appointment, AiSuggestion, User } from "@prisma/client";
+import { Appointment, AiSuggestion } from "@prisma/client";
 import { makeSuggestion } from '@/app/actions/make-suggestion'
 import { saveAiSuggestion } from "@/app/actions/utility"
 
