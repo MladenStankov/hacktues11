@@ -1,14 +1,21 @@
 import { Suspense} from 'react'
 import { Skeleton } from "@/components/ui/skeleton"
 import SuggestionsBoard from '@/components/ai-suggestions/suggestions-board'
+import { auth } from '@/lib/auth';
+import { headers } from 'next/headers';
+import React from 'react';
 
-export default function Page() {
+export default async function Page() {
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   return (
     <main className="min-h-screen bg-background">
       <div className="container mx-auto py-6 max-w-7xl">
         <h1 className="text-3xl font-bold mb-6">Medical AI Opinion Dashboard</h1>
         <Suspense fallback={<DashboardSkeleton />}>
-          <SuggestionsBoard />
+          <SuggestionsBoard userId={session?.user.id ?? ""}/>
         </Suspense>
       </div>
     </main>

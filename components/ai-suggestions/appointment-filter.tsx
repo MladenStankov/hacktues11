@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CalendarIcon, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Appointment } from "@prisma/client";
+import { Appointment, User } from "@prisma/client";
 import { getDoctor, findAllApointments } from "@/app/actions/utility";
 
 interface AppointmentFilterProps {
@@ -20,6 +20,7 @@ interface AppointmentFilterProps {
   onSelectAppointments: (appointments: Appointment[]) => void;
   onGenerateOpinion: () => void;
   isGenerating: boolean;
+  userId: string
 }
 
 export function AppointmentFilter({
@@ -27,6 +28,7 @@ export function AppointmentFilter({
   onSelectAppointments,
   onGenerateOpinion,
   isGenerating,
+  userId
 }: AppointmentFilterProps) {
     const [appointments, setAppointments] = useState<Appointment[]>([])
     const [loading, setLoading] = useState(true)
@@ -40,7 +42,7 @@ export function AppointmentFilter({
     useEffect(() => {
         const loadAppointments = async () => {
             try {
-                const data = await findAllApointments();
+                const data = await findAllApointments(userId);
                 console.log("appointments: ", data);
                 // setAppointments(data);
                 setAppointments(data);
@@ -269,11 +271,12 @@ export function AppointmentFilter({
                                             />
                                             <div className="ml-3 flex-1">
                                                 <Label htmlFor={`appointment-${appointment?.id}`} className="font-medium cursor-pointer">
-                                                    {appointment?.reason}
+                                                    {appointment?.notes || "No notes"}
                                                 </Label>
                                                 <div className="text-sm text-muted-foreground mt-1">
                                                     <div>Date: {new Date(appointment.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</div>
                                                     <div>Doctor: {doctorNames[appointment.doctorId] || "Loading..."}</div>  
+                                                    <div>Reason: {appointment.reason}</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -288,7 +291,7 @@ export function AppointmentFilter({
                             <div className="p-4 space-y-4">
                                 {uniqueDoctors.map((doctor) => (
                                     <div key={doctor} className="space-y-2">
-                                        <h3 className="font-medium">{doctor}</h3>
+                                        <h3 className="font-medium">{doctorNames[doctor]}</h3>
                                         <div className="space-y-2 pl-4">
                                             {appointments
                                                 .filter((a) => a.doctorId === doctor && appointments.some((fa) => fa.id === a.id))

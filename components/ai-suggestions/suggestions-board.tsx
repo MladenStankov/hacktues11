@@ -4,24 +4,34 @@ import { useState } from "react"
 import { PreviousAssessments } from "@/components/ai-suggestions/previous-assesment"
 import { AppointmentFilter } from "@/components/ai-suggestions/appointment-filter"
 import { SuggestionDisplay } from "@/components/ai-suggestions/suggestion-display"
-import { Appointment, AiSuggestion } from "@prisma/client";
+import { Appointment, AiSuggestion, User } from "@prisma/client";
 import { makeSuggestion } from '@/app/actions/make-suggestion'
+import { saveAiSuggestion } from "@/app/actions/utility"
 
+interface SuggestionProps {
+  userId: string
+}
 
-export default function SuggestionsBoard() {
+export default function SuggestionsBoard({ userId }: SuggestionProps) {
   const [selectedAppointments, setSelectedAppointments] = useState<Appointment[]>([])
   const [currentReview, setCurrentReview] = useState<AiSuggestion | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
 
   const handleGenerateOpinion = async () => {
     if (selectedAppointments.length === 0) return
-
+    console.log("selectedAppointments: ", selectedAppointments)
     const selectedAppointmentIds = selectedAppointments.map((appointment) => appointment.id);
 
     setIsGenerating(true)
     try {
+      console.log("selectedAppointmentIds: ", selectedAppointmentIds)
       const newReview = await makeSuggestion(selectedAppointmentIds);
-      setCurrentReview(newReview)
+      console.log("newReview: ", newReview)
+      const savedSuggestion = await saveAiSuggestion(newReview);
+    
+      console.log("savedSuggestion: ", savedSuggestion);
+  
+      setCurrentReview(savedSuggestion);
     } catch (error) {
       console.error("Failed to generate AI opinion:", error)
     } finally {
@@ -51,12 +61,13 @@ export default function SuggestionsBoard() {
         {currentReview ? (
           <SuggestionDisplay review={currentReview} onBack={handleResetView} />
         ) : (
-            <AppointmentFilter
+          <AppointmentFilter
             selectedAppointments={selectedAppointments}
             onSelectAppointments={setSelectedAppointments}
             onGenerateOpinion={handleGenerateOpinion}
             isGenerating={isGenerating}
-          /> 
+            userId={userId}
+          />
         )}
       </div>
     </div>
