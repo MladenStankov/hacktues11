@@ -12,7 +12,6 @@ export async function getDoctor(doctorId: string): Promise< User | null> {
     const doctorUser = await prisma.user.findUnique({
         where: { id: doctor.userId }
     });
-
     return doctorUser;
 }
 

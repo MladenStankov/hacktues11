@@ -72,7 +72,7 @@ export function AppointmentFilter({
         if (appointments.length > 0) {
             fetchDoctorNames();
         }
-    }, [appointments, doctorNames]);
+    }, [appointments]);
 
 
   const toggleAppointment = (appointment: Appointment) => {
