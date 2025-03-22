@@ -28,6 +28,14 @@ import {
   completeAppointment,
 } from "@/app/actions/doctor-actions";
 import { Appointment } from "@prisma/client";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { UploadButton } from "@/app/actions/uploadthing";
 
 interface DoctorDashboardProps {
   doctorId: string;
@@ -76,12 +84,30 @@ export default function DoctorDashboard({ doctorId }: DoctorDashboardProps) {
     doctor: true,
     appointments: true,
   });
+  const [selectedAppointment, setSelectedAppointment] = useState<string | null>(
+    null
+  );
+  const [xmlData, setXmlData] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   const handleCompleteAppointment = async (appointmentId: string) => {
+    setSelectedAppointment(appointmentId);
+    setIsDialogOpen(true);
+    setUploadSuccess(false);
+  };
+
+  const handleSubmitCompletion = async () => {
+    if (!selectedAppointment || !xmlData) return;
+
     try {
-      await completeAppointment(appointmentId);
+      await completeAppointment(selectedAppointment, xmlData);
       const updatedAppointments = await getDoctorAppointments(doctorId);
       setAppointments(updatedAppointments);
+      setIsDialogOpen(false);
+      setXmlData("");
+      setSelectedAppointment(null);
+      setUploadSuccess(false);
     } catch (error) {
       console.error("Error completing appointment:", error);
     }
@@ -94,6 +120,7 @@ export default function DoctorDashboard({ doctorId }: DoctorDashboardProps) {
           getDoctorInfo(doctorId),
           getDoctorAppointments(doctorId),
         ]);
+        console.log("Loaded appointments:", appointmentsData);
         setDoctor(doctorData);
         setAppointments(appointmentsData);
       } catch (error) {
@@ -119,91 +146,156 @@ export default function DoctorDashboard({ doctorId }: DoctorDashboardProps) {
   }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="grid gap-6 md:grid-cols-[350px_1fr]">
-        {/* Doctor Info Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Doctor Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex flex-col items-center space-y-2">
-              <Avatar className="h-24 w-24">
-                <AvatarImage
-                  src={doctor?.image || "/default_doctor_image.jpg"}
-                />
-                <AvatarFallback>{doctor?.name}</AvatarFallback>
-              </Avatar>
-              <div className="text-center">
-                <h2 className="text-xl font-bold">Dr. {doctor?.name}</h2>
-                <Badge variant="secondary" className="text-sm">
-                  {doctor?.doctor?.specialization
-                    ? formatSpecialization(doctor.doctor.specialization)
-                    : "No Specialization"}
-                </Badge>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Professional Info</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="text-muted-foreground">License Number</div>
-                <div>{doctor?.doctor?.licenseNumber}</div>
-                <div className="text-muted-foreground">Hospital</div>
-                <div>{doctor?.doctor?.hospital || "Not specified"}</div>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Contact Information</span>
-              </div>
-              <div className="space-y-1 text-sm">
-                <div className="flex items-center gap-2">
-                  <Mail className="h-3 w-3 text-muted-foreground" />
-                  <span>{doctor?.email}</span>
+    <>
+      <div className="container mx-auto py-6">
+        <div className="grid gap-6 md:grid-cols-[350px_1fr]">
+          {/* Doctor Info Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Doctor Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-col items-center space-y-2">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage
+                    src={doctor?.image || "/default_user_image.jpg"}
+                  />
+                  <AvatarFallback>{doctor?.name}</AvatarFallback>
+                </Avatar>
+                <div className="text-center">
+                  <h2 className="text-xl font-bold">Dr. {doctor?.name}</h2>
+                  <Badge variant="secondary" className="text-sm">
+                    {doctor?.doctor?.specialization
+                      ? formatSpecialization(doctor.doctor.specialization)
+                      : "No Specialization"}
+                  </Badge>
                 </div>
               </div>
-            </div>
 
-            <SignoutButton />
-          </CardContent>
-        </Card>
+              <Separator />
 
-        {/* Appointments Section */}
-        <div className="space-y-6">
-          <Tabs defaultValue="upcoming" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="upcoming">Upcoming Appointments</TabsTrigger>
-              <TabsTrigger value="past">Past Appointments</TabsTrigger>
-            </TabsList>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Professional Info</span>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div className="text-muted-foreground">License Number</div>
+                  <div>{doctor?.doctor?.licenseNumber}</div>
+                  <div className="text-muted-foreground">Hospital</div>
+                  <div>{doctor?.doctor?.hospital || "Not specified"}</div>
+                </div>
+              </div>
 
-            <TabsContent value="upcoming">
-              <AppointmentsList
-                appointments={appointments.filter((app) => !app.completed)}
-                onComplete={handleCompleteAppointment}
-                type="upcoming"
-              />
-            </TabsContent>
+              <Separator />
 
-            <TabsContent value="past">
-              <AppointmentsList
-                appointments={appointments.filter((app) => app.completed)}
-                type="past"
-              />
-            </TabsContent>
-          </Tabs>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">
+                    Contact Information
+                  </span>
+                </div>
+                <div className="space-y-1 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-3 w-3 text-muted-foreground" />
+                    <span>{doctor?.email}</span>
+                  </div>
+                </div>
+              </div>
+
+              <SignoutButton />
+            </CardContent>
+          </Card>
+
+          {/* Appointments Section */}
+          <div className="space-y-6">
+            <Tabs defaultValue="upcoming" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="upcoming">
+                  Upcoming Appointments
+                </TabsTrigger>
+                <TabsTrigger value="past">Past Appointments</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="upcoming">
+                <AppointmentsList
+                  appointments={appointments.filter((app) => !app.completed)}
+                  onComplete={handleCompleteAppointment}
+                  type="upcoming"
+                />
+              </TabsContent>
+
+              <TabsContent value="past">
+                <AppointmentsList
+                  appointments={appointments.filter((app) => app.completed)}
+                  type="past"
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
-    </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Complete Appointment</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Please upload the medical examination XML file to complete this
+                appointment.
+              </p>
+              <div className="flex flex-col items-center gap-4 p-4 border rounded-lg">
+                <UploadButton
+                  className="ut-button:bg-primary ut-button:text-white ut-button:hover:bg-primary/90"
+                  endpoint="xmlUploader"
+                  onClientUploadComplete={(res) => {
+                    console.log("res", res);
+                    if (res?.[0]?.url) {
+                      setXmlData(res[0].url);
+                      setUploadSuccess(true);
+                    }
+                  }}
+                  onUploadError={(error: Error) => {
+                    console.error("Upload error:", error);
+                    alert(`Upload failed: ${error.message}`);
+                  }}
+                />
+                {uploadSuccess && (
+                  <div className="flex items-center gap-2 text-sm text-green-600">
+                    <CheckCircle className="h-4 w-4" />
+                    File uploaded successfully
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDialogOpen(false);
+                setUploadSuccess(false);
+                setXmlData("");
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmitCompletion}
+              disabled={!xmlData}
+              className="flex items-center gap-2"
+            >
+              <CheckCircle className="h-4 w-4" />
+              Complete Appointment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

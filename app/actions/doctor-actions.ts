@@ -15,7 +15,9 @@ export async function getDoctorInfo(doctorId: string) {
 export async function getDoctorAppointments(doctorId: string) {
   const appointments = await prisma.appointment.findMany({
     where: {
-      doctorId: doctorId,
+      doctor: {
+        userId: doctorId,
+      },
     },
     include: {
       patient: {
@@ -31,10 +33,21 @@ export async function getDoctorAppointments(doctorId: string) {
   return appointments;
 }
 
-export async function completeAppointment(appointmentId: string) {
-  const appointment = await prisma.appointment.update({
-    where: { id: appointmentId },
-    data: { completed: true },
-  });
-  return appointment;
+export async function completeAppointment(
+  appointmentId: string,
+  xmlData: string
+) {
+  try {
+    const appointment = await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: {
+        completed: true,
+        xmlFiles: [xmlData],
+      },
+    });
+    return appointment;
+  } catch (error) {
+    console.error("Error completing appointment:", error);
+    throw new Error("Failed to complete appointment");
+  }
 }
