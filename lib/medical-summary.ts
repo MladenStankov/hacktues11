@@ -2,9 +2,10 @@ import { fetchMultipleAppointmentsNotes } from "./note-loader"
 import prisma from "@/lib/prisma"
 
 
-export async function fetchAllDiseasesAndAllergies(): Promise<string> {
+export async function fetchAllDiseasesAndAllergies(patientId: string): Promise<string> {
     try {
         const appointments = await prisma.appointment.findMany({
+            where: {patientId: patientId},
             select: { id: true },
         })
 

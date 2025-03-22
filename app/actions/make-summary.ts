@@ -3,8 +3,8 @@
 import { fetchAllDiseasesAndAllergies } from "@/lib/medical-summary"
 
 
-export async function makeSummary() {
-    const notes = await fetchAllDiseasesAndAllergies()
+export async function makeSummary(patientId: string) {
+    const notes = await fetchAllDiseasesAndAllergies(patientId)
     
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
@@ -44,4 +44,5 @@ export async function makeSummary() {
 
     const data = await response.json()
     console.log(data.choices?.[0]?.message?.content || 'No response received.')
+    return data;
 }
