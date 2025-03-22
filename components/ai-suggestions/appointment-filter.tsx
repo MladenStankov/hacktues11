@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -17,15 +17,15 @@ import { getDoctor, findAllApointments } from "@/app/actions/utility";
 
 interface AppointmentFilterProps {
   selectedAppointments: Appointment[];
-  onSelectAppointmentsAction: (appointments: Appointment[]) => void;
-  onGenerateOpinionAction: () => void;
+  onSelectAppointments: (appointments: Appointment[]) => void;
+  onGenerateOpinion: () => void;
   isGenerating: boolean;
 }
 
 export function AppointmentFilter({
   selectedAppointments,
-  onSelectAppointmentsAction,
-  onGenerateOpinionAction,
+  onSelectAppointments,
+  onGenerateOpinion,
   isGenerating,
 }: AppointmentFilterProps) {
     const [appointments, setAppointments] = useState<Appointment[]>([])
@@ -72,16 +72,16 @@ export function AppointmentFilter({
         if (appointments.length > 0) {
             fetchDoctorNames();
         }
-    }, [appointments]);
+    }, [appointments, doctorNames]);
 
 
   const toggleAppointment = (appointment: Appointment) => {
     if (selectedAppointments.some((a) => a.id === appointment.id)) {
-      onSelectAppointmentsAction(
+        onSelectAppointments(
         selectedAppointments.filter((a) => a.id !== appointment.id)
       );
     } else {
-      onSelectAppointmentsAction([...selectedAppointments, appointment]);
+        onSelectAppointments([...selectedAppointments, appointment]);
     }
   };
 
@@ -189,7 +189,7 @@ export function AppointmentFilter({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onSelectAppointmentsAction([])}
+              onClick={() => onSelectAppointments([])}
             >
               Clear all
             </Button>
@@ -380,7 +380,7 @@ export function AppointmentFilter({
           className="w-full"
           size="lg"
           disabled={selectedAppointments.length === 0 || isGenerating}
-          onClick={onGenerateOpinionAction}
+          onClick={onGenerateOpinion}
         >
           {isGenerating ? "Generating Opinion..." : "Generate AI Opinion"}
         </Button>
