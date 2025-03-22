@@ -1,25 +1,24 @@
-import prisma from "@/lib/prisma"
-import { makeSummary } from "@/app/actions/make-summary"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Console } from "console"
+import prisma from "@/lib/prisma";
+import { makeSummary } from "@/app/actions/make-summary";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-type Params = {
-  summaryId: string
-}
+type Params = Promise<{
+  summaryId: string;
+}>;
 
 export default async function SummaryPage({ params }: { params: Params }) {
-  const { summaryId } = params
+  const { summaryId } = await params;
 
   try {
     // Fetch the patient data using Prisma
     const patient = await prisma.patient.findFirst({
       where: {
-        summaryId: summaryId,
+        id: summaryId,
       },
       include: {
         user: true,
       },
-    })
+    });
 
     if (!patient) {
       return (
@@ -27,12 +26,12 @@ export default async function SummaryPage({ params }: { params: Params }) {
           <h1 className="text-2xl font-bold mb-4">Patient Not Found</h1>
           <p>No patient found with the summary ID: {summaryId}</p>
         </div>
-      )
+      );
     }
 
     // Generate the summary
-    const summary = await makeSummary(patient.id)
-    console.log(typeof summary)
+    const summary = await makeSummary(patient.id);
+    console.log(typeof summary);
     return (
       <div className="container mx-auto p-6">
         <h1 className="text-2xl font-bold mb-6">Patient Summary</h1>
@@ -48,50 +47,62 @@ export default async function SummaryPage({ params }: { params: Params }) {
                 <div>
                   <h3 className="font-medium">Personal Details</h3>
                   <p>
-                    <span className="font-medium">Name:</span> {patient.user.name}
+                    <span className="font-medium">Name:</span>{" "}
+                    {patient.user.name}
                   </p>
                   <p>
-                    <span className="font-medium">Email:</span> {patient.user.email}
+                    <span className="font-medium">Email:</span>{" "}
+                    {patient.user.email}
                   </p>
                   <p>
                     <span className="font-medium">ID Number:</span>{" "}
                     {patient.user.uniqueCitizenshipNumber || "Not provided"}
                   </p>
                   <p>
-                    <span className="font-medium">Phone:</span> {patient.phoneNumber}
+                    <span className="font-medium">Phone:</span>{" "}
+                    {patient.phoneNumber}
                   </p>
                   <p>
-                    <span className="font-medium">Date of Birth:</span> {patient.dateOfBirth.toLocaleDateString()}
+                    <span className="font-medium">Date of Birth:</span>{" "}
+                    {patient.dateOfBirth.toLocaleDateString()}
                   </p>
                   <p>
-                    <span className="font-medium">Gender:</span> {patient.gender}
+                    <span className="font-medium">Gender:</span>{" "}
+                    {patient.gender}
                   </p>
                 </div>
 
                 <div>
                   <h3 className="font-medium">Medical Information</h3>
                   <p>
-                    <span className="font-medium">Blood Type:</span> {patient.bloodType.replace("_", " ")}
+                    <span className="font-medium">Blood Type:</span>{" "}
+                    {patient.bloodType.replace("_", " ")}
                   </p>
                   <p>
-                    <span className="font-medium">Height:</span> {patient.heightCm} cm
+                    <span className="font-medium">Height:</span>{" "}
+                    {patient.heightCm} cm
                   </p>
                   <p>
-                    <span className="font-medium">Weight:</span> {patient.weightKg} kg
+                    <span className="font-medium">Weight:</span>{" "}
+                    {patient.weightKg} kg
                   </p>
                   <p>
                     <span className="font-medium">BMI:</span>{" "}
-                    {(patient.weightKg / Math.pow(patient.heightCm / 100, 2)).toFixed(1)}
+                    {(
+                      patient.weightKg / Math.pow(patient.heightCm / 100, 2)
+                    ).toFixed(1)}
                   </p>
                 </div>
 
                 <div>
                   <h3 className="font-medium">System Information</h3>
                   <p>
-                    <span className="font-medium">Patient ID:</span> {patient.id}
+                    <span className="font-medium">Patient ID:</span>{" "}
+                    {patient.id}
                   </p>
                   <p>
-                    <span className="font-medium">Summary ID:</span> {patient.summaryId}
+                    <span className="font-medium">Summary ID:</span>{" "}
+                    {patient.id}
                   </p>
                 </div>
               </div>
@@ -111,9 +122,9 @@ export default async function SummaryPage({ params }: { params: Params }) {
           </Card>
         </div>
       </div>
-    )
+    );
   } catch (error) {
-    console.error("Error fetching data:", error)
+    console.error("Error fetching data:", error);
     return (
       <div className="container mx-auto p-6">
         <h1 className="text-2xl font-bold mb-4">Error</h1>
@@ -122,7 +133,6 @@ export default async function SummaryPage({ params }: { params: Params }) {
           {error instanceof Error ? error.message : "Unknown error occurred"}
         </p>
       </div>
-    )
+    );
   }
 }
-
